@@ -157,3 +157,9 @@ def unit_name(unit):
 @register.filter
 def lesson_download(unit, index):
     return lesson_list[0][1][int(unit)-1][1][int(index)-1][1]	
+	
+@register.filter
+def student_username(name):
+    start = "_"
+    student = name[name.find(start)+1:]
+    return student

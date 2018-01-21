@@ -130,7 +130,11 @@ def classroom(request):
     
 # 查看可加入的班級
 def classroom_add(request):
-        classrooms = Classroom.objects.all().order_by('-id')
+        if request.user.groups.filter(name='teacher').exists():
+            classrooms = Classroom.objects.all().order_by('-id')
+        else :
+            user = User.objects.get(username=request.user.username[:request.user.username.find("_")])
+            classrooms = Classroom.objects.filter(teacher_id=user.id)
         classroom_teachers = []
         for classroom in classrooms:
             enroll = Enroll.objects.filter(student_id=request.user.id, classroom_id=classroom.id)

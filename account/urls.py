@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^(?P<action>\d+)/$',  views.MessageListView.as_view()),    
     #登入
     url(r'^login/$', views.user_login),
+    url(r'^student/login/$', views.student_login),  
     #登出
     url(r'^logout/$',auth_views.logout),
     url(r'^suss_logout/(?P<user_id>\d+)/$', views.suss_logout),    

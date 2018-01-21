@@ -116,4 +116,16 @@ class LineForm(forms.ModelForm):
             self.fields['title'].widget.attrs['size'] = 50
             self.fields['content'].label = "內容"
             self.fields['content'].widget.attrs['cols'] = 50
-            self.fields['content'].widget.attrs['rows'] = 20                              
+            self.fields['content'].widget.attrs['rows'] = 20    
+            
+# 學生登入表單
+class StudentLoginForm(forms.Form):
+    teacher = forms.CharField()  
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+    
+    def __init__(self, *args, **kwargs):
+        super(StudentLoginForm, self).__init__(*args, **kwargs)
+        self.fields['teacher'].label = "教師帳號"        
+        self.fields['username'].label = "學生帳號"
+        self.fields['password'].label = "密碼"

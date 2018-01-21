@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block title %} Teachers {% endblock %}
+{% block content %}
+<A href="/teacher/import/upload">匯入帳號</A>
+ 搜尋帳號：
+    <form action="."  method="get">
+      <input type="text" name = "account"><input type="submit" value="送出"/>
+    </form>
+        <tr>
+        <table>
+            <td>帳號</td>
+            <td>姓名</td>
+            <td>最新登入</td>
+        </tr>
+        {% for user in users %}
+            <tr>
+                <td>{{user.username|student_username}}</td>
+                <td>{{user.first_name}}</td>
+                <td>{{user.last_login}}</td>
+            </tr>
+        {% endfor %}
+        </table>
+        {% load pagination %}
+        {% get_pagination %}  
+{% endblock %}

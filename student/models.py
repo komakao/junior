@@ -145,4 +145,3 @@ class Debug(models.Model):
 
     def __str__(self):
         return 'Comment by {} on {}'.format(self.author_id, self.bug)
-        

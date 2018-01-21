@@ -1,11 +1,20 @@
 # -*- coding: UTF-8 -*-
 from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
-from teacher.models import Classroom
+from teacher.models import Classroom, ImportUser
 from student.models import Enroll
+from account.models import Profile, Message, MessagePoll
 from django.views.generic import ListView, DetailView, CreateView
-from .forms import ClassroomForm
+from .forms import ClassroomForm, UploadFileForm
 from django.template import RequestContext
+from django.contrib.auth.models import User
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+from wsgiref.util import FileWrapper
+from django.forms.models import model_to_dict
+import django_excel as excel
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
@@ -51,3 +60,81 @@ def classroom_edit(request, classroom_id):
         form = ClassroomForm(instance=classroom)
 
     return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))        
+  
+# 超級管理員可以查看所有帳號
+class StudentListView(ListView):
+    context_object_name = 'users'
+    paginate_by = 40
+    template_name = 'teacher/student_list.html'
+    
+    def get_queryset(self):      
+        if self.request.GET.get('account') != None:
+            keyword = self.request.GET.get('account')
+            queryset = User.objects.filter(Q(username__icontains=self.request.user.username+"_"+keyword) | Q(first_name__icontains=keyword)).order_by('-id')
+        else :
+            queryset = User.objects.filter(username__icontains=self.request.user.username+"_").order_by('-id')				
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(StudentListView, self).get_context_data(**kwargs)
+        account = self.request.GET.get('account')
+        context.update({'account': account})
+        return context	
+      
+# Create your views here.
+def import_sheet(request):
+    if False:
+        return redirect("/")
+    if request.method == "POST":
+        form = UploadFileForm(request.POST,
+                              request.FILES)
+        if form.is_valid():
+            ImportUser.objects.all().delete()
+            request.FILES['file'].save_to_database(
+                name_columns_by_row=0,
+                model=ImportUser,
+                mapdict=['username', 'first_name', 'password', 'email'])
+            users = ImportUser.objects.all()
+            return render(request, 'teacher/import_student.html',{'users':users})
+        else:
+            return HttpResponseBadRequest()
+    else:	
+        form = UploadFileForm()
+    return render(
+        request,
+        'teacher/upload_form.html',
+        {
+            'form': form,
+            'title': 'Excel file upload and download example',
+            'header': ('Please choose any excel file ' +
+                       'from your cloned repository:')
+        })
+	
+# Create your views here.
+def import_student(request):
+    if False:
+        return redirect("/")
+           
+    users = ImportUser.objects.all()
+    for user in users:
+        try:
+            account = User.objects.get(username=request.user.username+"_"+user.username)
+        except ObjectDoesNotExist:
+            new_user = User(username=request.user.username+"_"+user.username, first_name=user.first_name, password=user.password, email=user.email)
+            # Set the chosen password                 
+            new_user.set_password(user.password)
+            # Save the User object
+            new_user.save()
+            profile = Profile(user=new_user)
+            profile.save()          
+     
+            # create Message
+            title = "請洽詢任課教師課程名稱及選課密碼"
+            url = "/student/classroom/add"
+            message = Message.create(title=title, url=url, time=timezone.now())
+            message.save()                        
+                    
+            # message for group member
+            messagepoll = MessagePoll.create(message_id = message.id,reader_id=new_user.id)
+            messagepoll.save()               
+    return redirect('/teacher/student/list')	

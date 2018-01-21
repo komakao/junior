@@ -16,4 +16,7 @@ class ClassroomForm(forms.ModelForm):
             self.fields['name'].label = "班級名稱"
             self.fields['lesson'].label = "課程名稱"			
             self.fields['password'].label = "選課密碼"
-           
+            
+#上傳檔案
+class UploadFileForm(forms.Form):
+    file = forms.FileField()

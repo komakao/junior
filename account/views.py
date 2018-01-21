@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth import authenticate, login
 from django.db.models import *
-from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm
+from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, StudentLoginForm
 from django.contrib.auth.models import User
 from account.models import Profile, PointHistory, Message, MessagePoll, Visitor, VisitorLog
 from student.models import Enroll, Work, Assistant
@@ -134,6 +134,60 @@ def user_login(request):
         else:
                 form = LoginForm()
         return render_to_response('registration/login.html', {'test': test, 'message': message, 'form': form}, context_instance=RequestContext(request))
+
+# 使用者登入功能
+def student_login(request):
+        message = None
+        test = ""
+        if request.method == "POST":
+                form = LoginForm(request.POST)
+                if form.is_valid():
+                        username = request.POST['teacher'] + "_" + request.POST['username']
+                        password = request.POST['password']
+                        user = authenticate(username=username, password=password)
+                        if user is not None:
+                                if user.is_active:                                                                                               
+                                        # 登入成功，導到大廳
+                                        login(request, user)
+                                        try:
+                                            profile = Profile.objects.get(user=user)
+                                        except ObjectDoesNotExist:
+                                            profile = Profile(user=user)
+                                            profile.save()
+                                            # create Message
+                                            title = "請洽詢任課教師課程名稱及選課密碼"
+                                            url = "/student/classroom/add"
+                                            message = Message.create(title=title, url=url, time=timezone.now())
+                                            message.save()                        
+                    
+                                            # message for group member
+                                            messagepoll = MessagePoll(message_id = message.id,reader_id=user.id)
+                                            messagepoll.save()               																						
+                                        profile.visitor_count = profile.visitor_count + 1
+                                        profile.save()
+                                        
+                                        year = localtime(timezone.now()).year
+                                        month =  localtime(timezone.now()).month
+                                        day =  localtime(timezone.now()).day
+                                        date_number = year * 10000 + month*100 + day
+                                        try:
+                                            visitor = Visitor.objects.get(date=date_number)
+                                        except ObjectDoesNotExist:
+                                            visitor = Visitor(date=date_number)
+                                        visitor.count = visitor.count + 1
+                                        visitor.save()
+                                        
+                                        visitorlog = VisitorLog(visitor_id=visitor.id, user_id=user.id, IP=request.META.get('REMOTE_ADDR'))
+                                        visitorlog.save()
+                                        
+                                        return redirect('/account/0')
+                                else:
+                                        message = "Your user is inactive"
+                        else:                            
+                            message = "無效的帳號或密碼!"
+        else:
+                form = StudentLoginForm()
+        return render_to_response('form.html', {'test': test, 'message': message, 'form': form}, context_instance=RequestContext(request))
 
 # 記錄登出
 def suss_logout(request, user_id):
