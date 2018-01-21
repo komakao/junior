@@ -10,3 +10,4 @@ urlpatterns = [
     url(r'^teacher/', include('teacher.urls')), 
     url(r'^student/', include('student.urls')),   
 ]
+

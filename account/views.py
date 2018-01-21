@@ -197,13 +197,6 @@ def profile(request, user_id):
         profile = Profile(user=user)
         profile.save()
 
-    try:
-        hour_of_code = Certificate.objects.get(student_id=user_id)
-    except ObjectDoesNotExist:
-        hour_of_code = None
-
-    del lesson_list[:]
-    reset()
     works = Work.objects.filter(user_id=user_id)
     for work in works:
         lesson_list[work.index-1].append(work.score)
@@ -221,9 +214,9 @@ def profile(request, user_id):
     user_enrolls = Enroll.objects.filter(student_id=request.user.id)
     for enroll in user_enrolls:
         if is_classmate(user_id, enroll.classroom_id) or request.user.id == 1:
-          return render_to_response('account/profile.html',{'hour_of_code':hour_of_code, 'works':works, 'lesson_list':lesson_list, 'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
+          return render_to_response('account/profile.html',{'works':works, 'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
     if user_id == str(request.user.id):	
-        return render_to_response('account/profile.html',{'hour_of_code':hour_of_code, 'works':works, 'lesson_list':lesson_list, 'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
+        return render_to_response('account/profile.html',{'works':works, 'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
     return redirect("/")
 
 	# 修改密碼
@@ -234,12 +227,12 @@ def password(request, user_id):
             user = User.objects.get(id=user_id)
             user.set_password(request.POST['password'])
             user.save()            
-            return redirect('homepage')
+            return redirect('/')
     else:
         form = PasswordForm()
         user = User.objects.get(id=user_id)
 
-    return render_to_response('account/password.html',{'form': form, 'user':user}, context_instance=RequestContext(request))
+    return render_to_response('form.html',{'form': form, 'user':user}, context_instance=RequestContext(request))
 
 # 修改他人的真實姓名
 def adminrealname(request, user_id):
@@ -258,13 +251,13 @@ def adminrealname(request, user_id):
             if request.user.id == classroom.teacher_id:
                 teacher = True
                 break
-        if teacher:
+        if teacher or request.user.is_superuser:
             user = User.objects.get(id=user_id)
             form = RealnameForm(instance=user)
         else:
             return redirect("/")
 
-    return render_to_response('account/realname.html',{'form': form}, context_instance=RequestContext(request))
+    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))
 	
 # 修改自己的真實姓名
 def realname(request):
@@ -279,7 +272,7 @@ def realname(request):
         user = User.objects.get(id=request.user.id)
         form = RealnameForm(instance=user)
 
-    return render_to_response('account/realname.html',{'form': form}, context_instance=RequestContext(request))
+    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))
 
 # 修改學校名稱
 def adminschool(request):
@@ -294,7 +287,7 @@ def adminschool(request):
         user = User.objects.get(id=request.user.id)
         form = SchoolForm(instance=user)
 
-    return render_to_response('account/school.html',{'form': form}, context_instance=RequestContext(request))
+    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))
     
 # 修改信箱
 def adminemail(request):
@@ -309,7 +302,7 @@ def adminemail(request):
         user = User.objects.get(id=request.user.id)
         form = EmailForm(instance=user)
 
-    return render_to_response('account/email.html',{'form': form}, context_instance=RequestContext(request))    
+    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))    
 
 # 記錄積分項目
 class LogListView(ListView):
@@ -317,18 +310,7 @@ class LogListView(ListView):
     paginate_by = 20
     template_name = 'account/log_list.html'
 	
-    def get_queryset(self):
-        # 記錄系統事件
-        if self.kwargs['kind'] == "1" :
-            log = Log(user_id=self.kwargs['user_id'], event='查看積分--上傳作品')
-        elif  self.kwargs['kind'] == "2" :
-            log = Log(user_id=self.kwargs['user_id'], event='查看積分--小老師')      
-        elif  self.kwargs['kind'] == "3" :
-            log = Log(user_id=self.kwargs['user_id'], event='查看積分--除錯')            
-        elif  self.kwargs['kind'] == "4" :
-            log = Log(user_id=self.kwargs['user_id'], event='查看積分--創意秀')
-        else :
-            log = Log(user_id=self.kwargs['user_id'], event='查看全部積分')                                     
+    def get_queryset(self):                                 
         if not self.kwargs['kind'] == "0" :
             queryset = PointHistory.objects.filter(user_id=self.kwargs['user_id'],kind=self.kwargs['kind']).order_by('-id')
         else :
@@ -368,14 +350,11 @@ def make(request):
     if user_id and action :
         user = User.objects.get(id=user_id)           
         try :
-            group = Group.objects.get(name="teacher")	
+            group = Group.objects.get(name="active_teacher")	
         except ObjectDoesNotExist :
-            group = Group(name="teacher")
+            group = Group(name="active_teacher")
             group.save()
         if action == 'set':            
-            # 記錄系統事件
-            log = Log(user_id=1, event=u'管理員設為教師<'+user.first_name+'>')
-            log.save()                        
             group.user_set.add(user)
             # create Message
             title = "<" + request.user.first_name + u">設您為教師"
