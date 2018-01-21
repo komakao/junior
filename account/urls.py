@@ -5,7 +5,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     # post views
-    url(r'^$',  views.MessageListView.as_view()),    
+    url(r'^(?P<action>\d+)/$',  views.MessageListView.as_view()),    
     #登入
     url(r'^login/$', views.user_login),
     #登出

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from account.models import MessagePoll
 from teacher.models import Classroom
 from student.models import Enroll
+from student.lesson import *
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -146,5 +147,13 @@ def subtract(a, b):
     return a - b	
 
 @register.filter
-def lesson_name(index):
-    return lesson_list[index-1][2]
+def lesson_name(unit, index):
+    return lesson_list[0][1][int(unit)-1][1][int(index)-1][0]
+	
+@register.filter
+def unit_name(unit):
+    return lesson_list[0][1][int(unit)-1][0]	
+	
+@register.filter
+def lesson_download(unit, index):
+    return lesson_list[0][1][int(unit)-1][1][int(index)-1][1]	

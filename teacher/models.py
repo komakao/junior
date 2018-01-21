@@ -5,8 +5,14 @@ from django.utils import timezone
 
 # 班級
 class Classroom(models.Model):
+    Lesson_CHOICES = [
+        (1, '基礎程式設計'),
+        (2, '進階程式設計'),
+    ]	
     # 班級名稱
     name = models.CharField(max_length=30)
+    # 課程名稱
+    lesson = models.IntegerField(default=1, choices=Lesson_CHOICES)			
     # 選課密碼
     password = models.CharField(max_length=30)
     # 授課教師
@@ -31,5 +37,6 @@ class Classroom(models.Model):
     def __unicode__(self):
         return self.name
         
- 
+    def lesson_choice(self):
+        return dict(Classroom.Lesson_CHOICES)[self.lesson]	
    

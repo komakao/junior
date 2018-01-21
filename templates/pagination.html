@@ -1,16 +1,23 @@
-<div class="pagination">
-  <span class="step-links">
-        {% if page.has_previous %}
-          <a href="?page={{ page.previous_page_number }}{% if q != None %}&q={{q}}{% endif %}">Previous</a>
+{% if is_paginated %}
+<div class="pagination-wrapper">
+    <ul class="pager">
+    {% if page_obj.has_previous %}
+        <li><a href="?page={{ page_obj.previous_page_number }}">上一頁</a></li>
+    {% endif %}
+    {% for page in page_numbers %}
+        {% if page %}
+            {% ifequal page page_obj.number %}
+      <li class="disabled"><a href="#"><font color="red">{{ page }}</font></a></li>
+            {% else %}
+                <li><a href="?page={{ page }}">{{ page }}</a></li>
+            {% endifequal %}
+        {% else %}
+            ...
         {% endif %}
-        <span class="current">
-          Page {{ page.number }} of {{ page.paginator.num_pages }}.
-        </span>
-          {% if page.has_next %}
-                <a href="?page={{ page.next_page_number }}{% if q != None %}&q={{q}}{% endif %}">Next</a>
-          {% endif %}
-  </span>
+    {% endfor %}
+    {% if page_obj.has_next %}
+        <li><a href="?page={{ page_obj.next_page_number }}">下一頁</a></li>
+    {% endif %}
+    </ul>
 </div>
-  {% for index in page.paginator.page_range %}
-  {% if not page.number == index %}<a href="?page={{index}}{% if q != None %}&q={{q}}{% endif %}">{% endif %}{{index}}{% if not page.number == index %}</a>{% endif %}
-  {% endfor %}
+{% endif %}

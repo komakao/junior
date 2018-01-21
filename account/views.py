@@ -126,7 +126,7 @@ def user_login(request):
                                         visitorlog = VisitorLog(visitor_id=visitor.id, user_id=user.id, IP=request.META.get('REMOTE_ADDR'))
                                         visitorlog.save()
                                         
-                                        return redirect('/account')
+                                        return redirect('/account/0')
                                 else:
                                         message = "Your user is inactive"
                         else:                            
@@ -145,12 +145,27 @@ class MessageListView(ListView):
     paginate_by = 20
     template_name = 'account/dashboard.html'
 
-    def get_queryset(self):          
+    def get_queryset(self):             
         query = []
-        messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id).order_by('-message_id')
+        #公告
+        if self.kwargs['action'] == "1":
+            messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id, message_type=1).order_by('-message_id')
+        #私訊
+        elif self.kwargs['action'] == "2":
+            messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id, message_type=2).order_by('-message_id')
+        #系統
+        elif self.kwargs['action'] == "3":
+            messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id, message_type=3).order_by('-message_id')						
+        else :
+            messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id).order_by('-message_id')
         for messagepoll in messagepolls:
             query.append([messagepoll, messagepoll.message])
         return query
+        
+    def get_context_data(self, **kwargs):
+        context = super(MessageListView, self).get_context_data(**kwargs)
+        context['action'] = self.kwargs['action']
+        return context
         
 # 註冊帳號                  
 def register(request):
@@ -797,4 +812,4 @@ class EventVideoView(ListView):
             return redirect('/')
         return super(EventVideoView, self).render_to_response(context)        
 	
-     
+  

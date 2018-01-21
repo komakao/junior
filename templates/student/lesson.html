@@ -1,18 +1,19 @@
 {% extends "base.html" %}
-
+{% load tag %}
 {% block content %}
 <!--基礎程式設計-->
 {% if lesson == "1" %}
-  <!---基礎篇-->
-  {% if unit == "1" %}
-  {{lesson_list.0.1.0.0}}
-     {% if index == "1" %}
-     <h1>{{lesson_list.0.1.0.1.0}}</h1>
+     {{unit|unit_name}}
+     <h1>{{unit|lesson_name:index}}</h1>
 <section class="wrapper">
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active"><a aria-control="tab1" data-toggle="tab" role="tab" href="#tab1">範例展示</a></li>
-    <li role="presentation"><a aria-control="tab2" data-toggle="tab" role="tab" href="#tab2">教學影片</a></li>
+		{% if user.is_authenticated %}
+    {% if unit|lesson_download:index %}
+    <li role="presentation"><a aria-control="tab2" data-toggle="tab" role="tab" href="#tab2">素材下載</a></li>    
+    {% endif %}
     <li role="presentation"><a aria-control="tab3" data-toggle="tab" role="tab" href="#tab3">作業上傳</a></li>
+    {% endif %}
   </ul>
   <section class="tab-content">
     <article id="tab1" class="tab-pane fade in active" role="tabpanel">
@@ -20,48 +21,14 @@
     </article>
     <!--------------------------------------------------------->
     <article id="tab2" class="tab-pane fade" role="tabpanel">
-123
-    </article>
+12344
+    </article>   
     <!--------------------------------------------------------->
     <article id="tab3" class="tab-pane fade" role="tabpanel">
-12344
-    </article>    
+12
+    </article>       
   </section>
 </section>  
-     {% elif index == "2" %}
-     <h1>{{lesson_list.0.1.0.1.1}}</h1>
-<section class="wrapper">
-  <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a aria-control="tab1" data-toggle="tab" role="tab" href="#tab1">範例展示</a></li>
-    <li role="presentation"><a aria-control="tab2" data-toggle="tab" role="tab" href="#tab2">教學影片</a></li>
-    <li role="presentation"><a aria-control="tab3" data-toggle="tab" role="tab" href="#tab3">作業上傳</a></li>
-  </ul>
-  <section class="tab-content">
-    <article id="tab1" class="tab-pane fade in active" role="tabpanel">
-{% include "student/embedsb2.html" %}
-    </article>
-    <!--------------------------------------------------------->
-    <article id="tab2" class="tab-pane fade" role="tabpanel">
-123
-    </article>
-    <!--------------------------------------------------------->
-    <article id="tab3" class="tab-pane fade" role="tabpanel">
-12344
-    </article> 
-     {% endif %}
-  {% elif unit == "2" %}
-  <!--繪圖篇-->
-  <h1>{{lesson_list.0.1.1.0}}</h1>
-  <!--遊戲篇-->
-  {% elif unit == "3" %}
-  <h1>{{lesson_list.0.1.2.0}}</h1>
-  <!--計算篇-->
-  {% elif unit == "4" %}
-  <h1>{{lesson_list.0.1.3.0}}</h1>
-  <!--模擬篇-->
-  {% elif unit == "5" %}
-  <h1>{{lesson_list.0.1.4.0}}</h1>
-  {% endif %}
 <!--//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
 {% endif %}
   

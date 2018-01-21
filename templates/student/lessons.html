@@ -11,7 +11,7 @@
         <h6 class="nospace heading">{{unit.0}}({{unit.1|length}})</h6>
         <ul class="nospace">
           {% for assignment in unit.1 %}
-          <li><a href="/student/lesson/1/{{forloop.parentloop.counter}}/{{forloop.counter}}">{{assignment}}</a></li>
+          <li><a href="/student/lesson/1/{{forloop.parentloop.counter}}/{{forloop.counter}}">{{assignment.0}}</a></li>
           {% endfor %}
         </ul>
       </div>

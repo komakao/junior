@@ -31,12 +31,12 @@ Licence URI: http://www.os-templates.com/template-terms
 			<li><a class="drop" href="#"><img  width=16 src="/static/images/icon_lesson.png">課程</a>
            <ul>
             <li><a href="/student/lessons/1">基礎程式設計</a></li>
-            <li><a href="/account/profile/{{user.id}}#tab2">進階程式設計</a></li>
+            <li><a href="/student/lessons/2">進階程式設計</a></li>
           </ul>			
 			</li>
 				{% if user.is_authenticated %}
 		    <li><a href="/student/classroom"><img  width=16 src="/static/images/icon_class.png">班級</a></li>			
-		    <li><a href="/account"><img  width=16 src="/static/images/icon_message.png">訊息{% if request.user.id|unread > 0 %}({{request.user.id|unread}}){% endif %}</a></li>	
+		    <li><a href="/account/0"><img  width=16 src="/static/images/icon_message.png">訊息{% if request.user.id|unread > 0 %}({{request.user.id|unread}}){% endif %}</a></li>	
 				<li><a class="drop" href="#"><img  width=16 src="/static/images/icon_doc.png">檔案</a>
            <ul>
             <li><a href="/account/profile/{{user.id}}/#tab1" onclick="location.reload()">積分</a></li>
@@ -44,8 +44,8 @@ Licence URI: http://www.os-templates.com/template-terms
           </ul>
 				</li>		
             {% if request.user|has_group:"active_teacher" %} 	
-		<li><a href="/teacher/classroom"><img  width=16 src="/static/images/icon_teacher.png">教師</a></li>
-			{% endif %}
+						<li><a href="/teacher/classroom"><img  width=16 src="/static/images/icon_teacher.png">教師</a></li>
+						{% endif %}
                  {% if user.is_superuser %}
                  <li><a href="/account/userlist"><img  width=16 src="/static/images/icon_admin.png">帳號</a></li>
                  {% endif %}
