@@ -23,4 +23,13 @@ urlpatterns = [
     url(r'^announce/add/(?P<classroom_id>\d+)/$', login_required(AnnounceCreateView.as_view()), name='announce-add'),  
     url(r'^announce/detail/(?P<message_id>\d+)/$', views.announce_detail),
     url(r'^announce/download/(?P<messagefile_id>\d+)/$', views.announce_download),		
+    #作業
+    url(r'^work/(?P<classroom_id>\d+)/$', views.work),    
+    url(r'^assistant/(?P<classroom_id>\d+)/(?P<user_id>\d+)/(?P<lesson>\d+)/(?P<index>\d+)/$', views.assistant), 
+    url(r'^assistant_cancle/(?P<classroom_id>\d+)/(?P<user_id>\d+)/(?P<lesson>\d+)/(?P<index>\d+)$', views.assistant_cancle),  
+    url(r'^score_peer/(?P<lesson>\d+)/(?P<index>\d+)/(?P<classroom_id>\d+)/(?P<group>\d+)/$', views.score_peer),     
+    url(r'^scoring/(?P<classroom_id>[^/]+)/(?P<user_id>\d+)/(?P<lesson>\d+)/(?P<index>\d+)/$', views.scoring),     
+    url(r'^score/(?P<classroom_id>\d+)/(?P<lesson>\d+)/(?P<index>\d+)/$', views.score),   
+    url(r'^work/group/(?P<lesson>\d+)/(?P<index>\d+)/(?P<classroom_id>\d+)/$', views.work_group),   	
+    #url(r'^work1/(?P<classroom_id>\d+)/$', views.work1),   		
 ]

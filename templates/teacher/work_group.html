@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %} Students {% endblock %}
+{% block content %}
+        {{assignment}}
+		<BR>
+		<a href="/teacher/score/{{classroom_id}}/{{lesson}}">座號</a>
+<table>
+<tr>
+<td>名稱</td>  
+<td>小老師</td>
+<td>組員</td>  
+</tr>
+        {% for group in student_groups %}
+                <tr>
+                <td>{{group.0.name}}</td>
+                <td>
+				{% for assistant in group.2 %}
+				    ({{assistant.seat}}){{assistant.student.first_name}}
+				{% endfor %}                                 
+                </td>
+									<td>
+				{% for enroll in group.1 %}
+				  <a target=_blank href="/teacher/scoring/{{classroom_id}}/{{enroll.0.student_id}}/{{lesson}}">({{enroll.0.seat}}){{enroll.0.student.first_name}}</a>-{% if enroll.1 == -2 %}<font color=grey>尚未繳交</font>{% elif enroll.1 == -1 %}<font color=red>尚未評分</font>{% else %}-{{enroll.1}}-{{enroll.2}}{% endif %}
+				{% endfor %}
+				</td>
+        {% endfor %}
+</table>
+{% endblock %}

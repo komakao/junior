@@ -293,11 +293,15 @@ def work_download(request, index, user_id, workfile_id):
 # 列出所有作業        
 def work(request, classroom_id):
     lesson_dict = OrderedDict()
-    works = Work.objects.filter(user_id=request.user.id)
+    works = Work.objects.filter(user_id=request.user.id).order_by("id")
     lesson = Classroom.objects.get(id=classroom_id).lesson
     for unit in lesson_list[lesson-1][1]:
         for assignment in unit[1]:
-            lesson_dict[assignment[2]] = assignment[0]
+            sworks = filter(lambda w: w.index==assignment[2], works)
+            if len(sworks)>0 :
+                lesson_dict[assignment[2]] = [assignment[0], sworks[0]]
+            else :
+                lesson_dict[assignment[2]] = [assignment[0], None]
     return render_to_response('student/work.html', {'works':works, 'lesson_dict':sorted(lesson_dict.iteritems()), 'user_id': request.user.id, 'classroom_id':classroom_id}, context_instance=RequestContext(request))
 
 # 查詢某作業分組小老師    
