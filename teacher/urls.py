@@ -2,7 +2,7 @@
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from . import views
-from teacher.views import ClassroomListView, ClassroomCreateView
+from teacher.views import ClassroomListView, ClassroomCreateView, AnnounceListView, AnnounceCreateView
 
 urlpatterns = [
     url(r'^classroom/$', login_required(ClassroomListView.as_view())),
@@ -13,5 +13,14 @@ urlpatterns = [
 	  #大量匯入帳號
     url(r'^import/upload$', login_required(views.import_sheet), name='import_upload'),   	
     url(r'^import/student$', login_required(views.import_student), name='import_user'),     
-#url(r'^unenroll/(?P<enroll_id>\d+)/(?P<classroom_id>\d+)/$', views.unenroll),  	
+    #退選
+    url(r'^unenroll/(?P<enroll_id>\d+)/(?P<classroom_id>\d+)/$', views.unenroll),  	
+    #修改資料
+    url(r'^password/(?P<user_id>\d+)/$', views.password),
+    url(r'^realname/(?P<user_id>\d+)/$', views.realname),    
+    #公告
+    url(r'^announce/(?P<classroom_id>\d+)/$', login_required(AnnounceListView.as_view()), name='announce-list'),
+    url(r'^announce/add/(?P<classroom_id>\d+)/$', login_required(AnnounceCreateView.as_view()), name='announce-add'),  
+    url(r'^announce/detail/(?P<message_id>\d+)/$', views.announce_detail),
+    url(r'^announce/download/(?P<messagefile_id>\d+)/$', views.announce_download),		
 ]

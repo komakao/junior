@@ -140,7 +140,7 @@ def student_login(request):
         message = None
         test = ""
         if request.method == "POST":
-                form = LoginForm(request.POST)
+                form = StudentLoginForm(request.POST)
                 if form.is_valid():
                         username = request.POST['teacher'] + "_" + request.POST['username']
                         password = request.POST['password']
@@ -187,7 +187,7 @@ def student_login(request):
                             message = "無效的帳號或密碼!"
         else:
                 form = StudentLoginForm()
-        return render_to_response('form.html', {'test': test, 'message': message, 'form': form}, context_instance=RequestContext(request))
+        return render_to_response('account/student_login.html', {'test': test, 'message': message, 'form': form}, context_instance=RequestContext(request))
 
 # 記錄登出
 def suss_logout(request, user_id):
@@ -288,8 +288,10 @@ def profile(request, user_id):
         return render_to_response('account/profile.html',{'works':works, 'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
     return redirect("/")
 
-	# 修改密碼
+# 修改密碼
 def password(request, user_id):
+    if not request.user.is_superuser:
+        return redirect("/")
     if request.method == 'POST':
         form = PasswordForm(request.POST)
         if form.is_valid():
@@ -305,6 +307,8 @@ def password(request, user_id):
 
 # 修改他人的真實姓名
 def adminrealname(request, user_id):
+    if not request.user.is_superuser:
+        return redirect("/")	
     if request.method == 'POST':
         form = RealnameForm(request.POST)
         if form.is_valid():

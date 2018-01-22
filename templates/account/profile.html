@@ -6,14 +6,18 @@
 {% if user.id == user_id|to_int %}
 <a href="/account/password-change"><img src="/static/images/icon_edit1.png">修改密碼</a>　
 <a href="/account/realname"><img src="/static/images/icon_edit2.png">修改姓名</a>　
+{% if request.user|has_group:"active_teacher" %} 	
 <a href="/account/school"><img src="/static/images/icon_edit3.png">修改學校</a>　
 <a href="/account/email"><img src="/static/images/icon_edit4.png">修改信箱</a><BR><BR>
+{% endif %}
 {% endif %}
   
 <section class="wrapper">
   <h1>{{profile.user.first_name}}個人檔案</h1>
+<!--
 <p>信箱：{{profile.user.email}}</p>
 <p>學校：{{profile.user.last_name}}</p>
+-->
 <p>
 班級：
 {% for enroll in enrolls reversed %}

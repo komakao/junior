@@ -6,14 +6,12 @@
   <td>帳號</td>
   <td>姓名</td>
   <td>密碼</td>
-  <td>信箱</td>
   </tr>
 {% for user in users %}  
   <tr>
   <td>{{user.username}}</td>
   <td>{{user.first_name}}</td>
   <td>{{user.password}}</td>
-  <td>{{user.email}}</td>
   </tr>
 
 {% endfor %}

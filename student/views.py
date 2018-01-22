@@ -7,9 +7,11 @@ from django.views.generic import ListView, CreateView
 from django.shortcuts import render
 from student.lesson import *
 from student.models import Enroll, EnrollGroup
+from account.models import Message, MessagePoll
 from show.models import Round
 from teacher.models import Classroom
 from student.forms import EnrollForm, GroupForm, SubmitForm, SeatForm, GroupSizeForm
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
@@ -122,11 +124,10 @@ def group_open(request, classroom_id, action):
 def classroom(request):
         classrooms = []
         enrolls = Enroll.objects.filter(student_id=request.user.id).order_by("-id")
-        profile = Profile.objects.get(user_id=request.user.id)
         for enroll in enrolls:
             shows = Round.objects.filter(classroom_id=enroll.classroom_id)
             classrooms.append([enroll, shows])        
-        return render_to_response('student/classroom.html',{'classrooms': classrooms, 'profile':profile}, context_instance=RequestContext(request))    
+        return render_to_response('student/classroom.html',{'classrooms': classrooms}, context_instance=RequestContext(request))    
     
 # 查看可加入的班級
 def classroom_add(request):
@@ -134,7 +135,7 @@ def classroom_add(request):
             classrooms = Classroom.objects.all().order_by('-id')
         else :
             user = User.objects.get(username=request.user.username[:request.user.username.find("_")])
-            classrooms = Classroom.objects.filter(teacher_id=user.id)
+            classrooms = Classroom.objects.filter(teacher_id=user.id).order_by("-id")
         classroom_teachers = []
         for classroom in classrooms:
             enroll = Enroll.objects.filter(student_id=request.user.id, classroom_id=classroom.id)
@@ -198,3 +199,27 @@ class LoginLogListView(ListView):
         else :
             context['page'] = 0
         return context        
+
+# 列出所有公告
+class AnnounceListView(ListView):
+    model = Message
+    context_object_name = 'messages'
+    template_name = 'student/announce_list.html'    
+    paginate_by = 20
+    
+    def get_queryset(self):
+        classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])  
+        messages = Message.objects.filter(classroom_id=classroom.id, author_id=classroom.teacher_id).order_by("-id")
+        queryset = []
+        for message in messages:
+            try: 
+                messagepoll = MessagePoll.objects.get(message_id=message.id, reader_id=self.request.user.id, classroom_id=classroom.id)
+                queryset.append([messagepoll, message])
+            except ObjectDoesNotExist :
+                pass
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(AnnounceListView, self).get_context_data(**kwargs)
+        context['classroom'] = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        return context	    

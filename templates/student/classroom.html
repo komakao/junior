@@ -3,34 +3,30 @@
 {% load tag %}
 {% block content %}
         <a href="add"><img src="/static/images/icon_join.png">加入班級</a><BR><BR>        
-        <table>
         {% for classroom in classrooms %}
+        <table>					
         <tr>
-            <td rowspan={{classroom.1|length|add:5}}>班級：{{classroom.0.classroom}}</td>
-            <td rowspan={{classroom.1|length|add:5}}>座號：{{classroom.0.seat}}</td>
+            <td rowspan={{classroom.1|length|add:2}}>班級：{{classroom.0.classroom}}</td>
+            <td rowspan={{classroom.1|length|add:2}}>座號：{{classroom.0.seat}}</td>
             <td>基本資料：
 	<a href="/student/classroom/seat/{{classroom.0.id}}/{{classroom.0.classroom_id}}">座號</a>｜			
 			<a href="/student/group/{{classroom.0.classroom_id}}">組別</a>｜
 			<a href="/student/classmate/{{classroom.0.classroom_id}}">同學</a>｜
 			<a href="/student/work/{{classroom.0.classroom_id}}">作業</a>｜
 			<a href="/student/work1/{{classroom.0.classroom_id}}">小老師</a>｜							
+			<a href="/student/progress/{{classroom.0.classroom_id}}">進度</a>｜							
 			<a href="/student/memo_all/{{classroom.0.classroom_id}}">心得</a>[<a href="/student/memo_count/{{classroom.0.classroom_id}}">統計</a>]｜
-			<a href="/student/note">筆記</a>｜			
-			<a href="/student/video/{{request.user.id}}">影片記錄</a>｜
-			<a href="/account/event/video/{{classroom.0.classroom_id}}">影片統計</a>｜		
-		  <a href="/student/calendar/{{classroom.0.classroom_id}}">登入記錄</a>｜								
+						
 			</td>
 		</tr>
         <tr>
             <td>互動：
-							<a href="/survey/pre_survey/">課前問卷</a>[<A href="/survey/pre_result/{{classroom.0.classroom_id}}">統計</A>]｜
-							<a href="/survey/post_survey/">課後問卷</a>[<a href="/survey/post_result/{{classroom.0.classroom_id}}">統計</a>]｜														
 							<a href="/student/announce/{{classroom.0.classroom_id}}">公告</a>｜
 		    <a href="/account/line/{{classroom.0.classroom_id}}">我的私訊</a>｜			
 		    <a href="/account/line/class/{{classroom.0.classroom_id}}">私訊同學</a>｜					    
 			<a href="/account/line/add/{{classroom.0.classroom_id}}/{{classroom.0.classroom_id|teacher_id}}">私訊老師</a>｜
-			<a href="/student/bug/class/{{classroom.0.classroom_id}}">Bug專區</a>｜
-			<a href="/student/bug/add/{{classroom.0.classroom_id}}">Bug求救</a>｜			
+							<a href="/survey/pre_survey/">課前問卷</a>[<A href="/survey/pre_result/{{classroom.0.classroom_id}}">統計</A>]｜
+							<a href="/survey/post_survey/">課後問卷</a>[<a href="/survey/post_result/{{classroom.0.classroom_id}}">統計</a>]｜																			
 			</td>
 		</tr>
     {% for show in classroom.1 %}
@@ -50,32 +46,7 @@
 			</td>
 		</tr>	
 			{% endfor %}
-	          <tr>
-            <td>進度：
-			<a href="../progress/{{classroom.0.classroom_id}}/1">Scratch12堂課</a>｜           
-            <a href="../progress/{{classroom.0.classroom_id}}/2">實戰入門</a>｜                        
-            <a href="../progress/{{classroom.0.classroom_id}}/3">實戰進擊</a>｜                       
-            <a href="../progress/{{classroom.0.classroom_id}}/4">實戰高手</a>｜                             
-            </td>
-		</tr>
-		<tr>
-			<td>證書：
-			<a href="/certificate/classroom/0/{{classroom.0.classroom_id}}">Hour of Code</a>｜
-			<a href="/certificate/classroom/1/{{classroom.0.classroom_id}}">Scratch12堂課</a>｜
-			<a href="/certificate/classroom/2/{{classroom.0.classroom_id}}">實戰入門</a>｜
-			<a href="/certificate/classroom/3/{{classroom.0.classroom_id}}">實戰進擊</a>｜
-			<a href="/certificate/classroom/4/{{classroom.0.classroom_id}}">實戰高手</a>｜
-			</td>
-        </tr>		
-		<tr>
-			<td>排行榜：
-			<a href="/student/rank/0/{{classroom.0.classroom_id}}">總積分</a>｜
-			<a href="/student/rank/1/{{classroom.0.classroom_id}}">作業上傳</a>｜
-			<a href="/student/rank/2/{{classroom.0.classroom_id}}">小老師</a>｜
-			<a href="/student/rank/3/{{classroom.0.classroom_id}}">除錯</a>｜
-			<a href="/student/rank/4/{{classroom.0.classroom_id}}">創意秀</a>｜	
-			</td>
-        </tr>
-        {% endfor %}
-        </table>
+  </table>					
+  {% endfor %}
+
 {% endblock %}

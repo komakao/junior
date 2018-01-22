@@ -16,6 +16,15 @@
         </ul>
       </div>
       {% endfor %}    
+				{% if user.is_authenticated %}      
+      <div class="col-md-2">
+        <h6 class="nospace heading">問卷篇(2)</h6>
+        <ul class="nospace">
+          <li><a href="/survey/pre_survey/">課前問卷</a></li>
+          <li><a href="/survey/post_survey/">課後問卷</a></li>          
+        </ul>
+      </div>      
+      {% endif %}
     </div>
 
 {% elif lesson == "2" %}

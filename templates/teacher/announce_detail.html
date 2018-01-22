@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %} Teachers {% endblock %}
+{% load tag %}
+{% block content %}
+        <h1>班級名稱：{{classroom.name}}</h1>
+        <table>
+            <tr>
+                <td>時間</td><td>{{message.time}}</td>
+            </tr>
+            <tr>
+                <td>主旨</td> <td>{{message.title}}</td>
+            </tr>
+            <tr>
+                <td>內容</td><td>{{message.content|safe}}</td>
+            </tr>
+          {% if files %}
+            <tr>
+                <td>附件</td>
+              <td>
+              {% for file in files %}
+                <img src="/static/images/icon1.png"><a href="/teacher/announce/download/{{file.id}}">{{file.before_name}}</a><BR>
+              {% endfor %}
+              </td>
+            </tr>      
+          {% endif %}
+        </table>
+        <table> 
+            <tr>          
+           {% for announce_read in announce_reads %}
+            <td>
+           ({{announce_read.0}}){{announce_read.1}}：
+           {% if announce_read.2.read %}
+           已讀
+           {% else %}
+           <font color=red>未讀</font>           
+           {% endif %}
+           </td>
+           {% if forloop.counter|divisibleby:5 %}
+          </tr><tr>
+           {% endif %}
+           {% endfor %}
+           </tr>            
+        </table>
+{% endblock %}
+© 2018 GitHub, Inc.

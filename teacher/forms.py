@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from teacher.models import Classroom
+from account.models import Message
 #from student.models import Work, Enroll
 #from account.models import Message
 #from student.models import SWork, Enroll
@@ -20,3 +21,17 @@ class ClassroomForm(forms.ModelForm):
 #上傳檔案
 class UploadFileForm(forms.Form):
     file = forms.FileField()
+    
+# 新增一個課程表單
+class AnnounceForm(forms.ModelForm):
+        class Meta:
+           model = Message
+           fields = ['title', 'content']
+        
+        def __init__(self, *args, **kwargs):
+            super(AnnounceForm, self).__init__(*args, **kwargs)
+            self.fields['title'].label = "公告主旨"
+            self.fields['title'].widget.attrs['size'] = 50	
+            self.fields['content'].label = "公告內容"
+            self.fields['content'].widget.attrs['cols'] = 50
+            self.fields['content'].widget.attrs['rows'] = 20        

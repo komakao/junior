@@ -2,6 +2,8 @@
 from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
+from student.views import AnnounceListView
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     #課程
@@ -29,5 +31,6 @@ urlpatterns = [
     url(r'^group/size/(?P<classroom_id>[^/]+)/$', views.group_size),      
     url(r'^group/open/(?P<classroom_id>[^/]+)/(?P<action>[^/]+)/$', views.group_open),     
 		url(r'^group/delete/(?P<group_id>[^/]+)/(?P<classroom_id>[^/]+)/$', views.group_delete),   
-  
+    #公告
+    url(r'^announce/(?P<classroom_id>\d+)/$', login_required(AnnounceListView.as_view()), name='announce-list'),  
 ]
