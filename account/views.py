@@ -9,6 +9,7 @@ from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, L
 from django.contrib.auth.models import User
 from account.models import Profile, PointHistory, Message, MessagePoll, Visitor, VisitorLog
 from student.models import Enroll, Work, Assistant
+from student.lesson import *
 from teacher.models import Classroom
 #from certificate.models import Certificate
 from django.core.exceptions import ObjectDoesNotExist
@@ -266,16 +267,6 @@ def profile(request, user_id):
         profile = Profile(user=user)
         profile.save()
 
-    works = Work.objects.filter(user_id=user_id)
-    for work in works:
-        lesson_list[work.index-1].append(work.score)
-        lesson_list[work.index-1].append(work.publication_date)
-        if work.score > 0 :
-            score_name = User.objects.get(id=work.scorer).first_name
-            lesson_list[work.index-1].append(score_name)
-        else :
-            lesson_list[work.index-1].append("null")
-
     # 計算積分    
     credit = profile.work + profile.assistant + profile.debug + profile.creative     
         
@@ -283,9 +274,9 @@ def profile(request, user_id):
     user_enrolls = Enroll.objects.filter(student_id=request.user.id)
     for enroll in user_enrolls:
         if is_classmate(user_id, enroll.classroom_id) or request.user.id == 1:
-          return render_to_response('account/profile.html',{'works':works, 'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
+          return render_to_response('account/profile.html',{'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
     if user_id == str(request.user.id):	
-        return render_to_response('account/profile.html',{'works':works, 'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
+        return render_to_response('account/profile.html',{'enrolls':enrolls, 'profile': profile,'user_id':user_id, 'credit':credit}, context_instance=RequestContext(request))	
     return redirect("/")
 
 # 修改密碼
