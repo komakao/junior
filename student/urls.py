@@ -33,4 +33,8 @@ urlpatterns = [
 		url(r'^group/delete/(?P<group_id>[^/]+)/(?P<classroom_id>[^/]+)/$', views.group_delete),   
     #公告
     url(r'^announce/(?P<classroom_id>\d+)/$', login_required(AnnounceListView.as_view()), name='announce-list'),  
+    # 作業上傳
+    url(r'^work/(?P<classroom_id>\d+)/$', views.work),  
+    url(r'^work/download/(?P<index>\d+)/(?P<user_id>\d+)/(?P<workfile_id>\d+)/$', views.work_download),  	
+    #url(r'^work1/(?P<classroom_id>\d+)/$', views.work1),  	
 ]

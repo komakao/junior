@@ -25,7 +25,47 @@
     </article>   
     <!--------------------------------------------------------->
     <article id="tab3" class="tab-pane fade" role="tabpanel">
-12
+<script>
+function checkvalue() { 
+    var mystring = document.getElementById('id_memo').value; 
+    if(!mystring.match(/\S/)) {
+        alert ('請填寫心得~~');
+        return false;
+    } else {
+        return true;
+    }
+}
+</script>
+
+    {{lesson_name}}<BR>
+        {% if workfiles %}
+            {% if scores.1 > 0 %}
+            分數：{{ scores.0 }} / 
+            評分者：{{ scores.1 }}
+            {% else %}
+            尚未評分        
+            <form action="." method="post" enctype="multipart/form-data">{% csrf_token %}
+            作品檔案：{{ form.file }}<BR>
+            心得感想：{{form.memo}}<BR>
+            <input type="submit" value="送出" />
+            </form>
+            {% endif %}
+        {% else %}
+            狀態：未繳交
+            <br>
+            <form onsubmit="return checkvalue(this)" action="." method="post" enctype="multipart/form-data">{% csrf_token %}
+            作品檔案：{{ form.file }}<BR>
+            心得感想：{{form.memo}}<BR>
+            <input type="submit" value="送出" />
+            </form>
+        {% endif %}
+        <br>
+{% if workfiles %}
+{% include "student/embedsb2work.html" %}  
+{% endif %}
+        {% for workfile in workfiles %}
+              <BR>第{{workfiles|length|subtract:forloop.counter|add:1}}版：<A href="/student/work/download/{{index}}/{{request.user.id}}/{{workfile.id}}">{{workfile.upload_date}}</A>
+        {% endfor %}
     </article>       
   </section>
 </section>  
@@ -33,6 +73,10 @@
 {% endif %}
   
 {% endblock %}
-{% block userscript %}
-
+{% block domready %}
+// Javascript to enable link to tab
+var url = document.location.toString();
+if (url.match('#')) {
+    $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');  
+} 
 {% endblock %}

@@ -1,0 +1,15 @@
+#include<iostream>
+#include <fstream>
+
+using namespace std; 
+int main() {     
+    std::ifstream infile("d:/file.txt");
+	int a, b, s;
+	while (infile >> a >> b)
+	{
+	    // process pair (a,b)
+	    s = a + b;
+	    printf("%d+%d=%d\n", a, b, s);
+	}
+ return 0;
+}

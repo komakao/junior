@@ -6,7 +6,7 @@
         {% for classroom in classrooms %}
         <table>					
         <tr>
-            <td rowspan={{classroom.1|length|add:2}}>班級：{{classroom.0.classroom}}</td>
+            <td rowspan={{classroom.1|length|add:2}}>班級：{{classroom.0.classroom}}<BR>課程：{{classroom.0.classroom.lesson_choice}}</td>
             <td rowspan={{classroom.1|length|add:2}}>座號：{{classroom.0.seat}}</td>
             <td>基本資料：
 	<a href="/student/classroom/seat/{{classroom.0.id}}/{{classroom.0.classroom_id}}">座號</a>｜			
