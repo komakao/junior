@@ -60,6 +60,7 @@ class EnrollGroup(models.Model):
 
 class Work(models.Model):
     user_id = models.IntegerField(default=0) 
+    lesson = models.IntegerField(default=0)
     index = models.IntegerField()
     file = models.FileField()
     memo = models.TextField()

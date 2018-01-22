@@ -131,3 +131,7 @@ STATICFILES_DIRS = [
 
 FILE_UPLOAD_HANDLERS = ("django_excel.ExcelMemoryFileUploadHandler",
                         "django_excel.TemporaryExcelFileUploadHandler")
+
+CONTEXT_PROCESSORS  = (
+    'django.contrib.auth.context_processors.auth'
+)

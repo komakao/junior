@@ -13,7 +13,7 @@
         <td>{{key}}</td>
         <td>{{assignment}}</td>
             <td><a target=_blank href="/teacher/score/{{classroom.id}}/{{classroom.lesson}}/{{key}}">{{classroom.name}}</a></td>
-          <td><a target=_blank href="/student/memo/{{classroom.id}}/{{classroom.lesson}}/{{key}}">心得</a> [<a target=_blank href="/student/memo_work_count/{{classroom.id}}/{{classroom.lesson}}/{{key}}">統計</a>]</td>
+          <td><a target=_blank href="/student/memo/{{classroom.id}}/{{key}}">心得</a> [<a target=_blank href="/student/memo_work_count/{{classroom.id}}/{{key}}">統計</a>]</td>
         </tr>
     {% endfor %}
     </table>

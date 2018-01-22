@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load tag %}
 {% block content %}
 {% if lesson == "1" %}
     <div class="sectiontitle">
@@ -11,7 +11,7 @@
         <h6 class="nospace heading">{{unit.0}}({{unit.1|length}})</h6>
         <ul class="nospace">
           {% for assignment in unit.1 %}
-          <li><a href="/student/lesson/1/{{forloop.parentloop.counter}}/{{forloop.counter}}">{{assignment.0}}</a></li>
+					<li><a href="/student/lesson/1/{{forloop.parentloop.counter}}/{{assignment.2}}">{{assignment.0}}{% if assignment.4 > 0 %}<img src="/static/images/done.png">{% elif assignment.4 == -1 %}<img src="/static/images/check.png">{% endif %}</a></li>
           {% endfor %}
         </ul>
       </div>
@@ -20,8 +20,8 @@
       <div class="col-md-2">
         <h6 class="nospace heading">問卷篇(2)</h6>
         <ul class="nospace">
-          <li><a href="/survey/pre_survey/">課前問卷</a></li>
-          <li><a href="/survey/post_survey/">課後問卷</a></li>          
+          <li><a href="/survey/pre_survey/">課前問卷{% if request.user.id|pre_survey_donw %}<img src="/static/images/done.png">{% endif %}</a></li>
+          <li><a href="/survey/post_survey/">課後問卷{% if request.user.id|post_survey_donw %}<img src="/static/images/done.png">{% endif %}</a></li>          
         </ul>
       </div>      
       {% endif %}

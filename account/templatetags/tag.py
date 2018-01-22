@@ -3,14 +3,16 @@ from django import template
 from django.contrib.auth.models import User
 from account.models import MessagePoll
 from teacher.models import Classroom
-from student.models import Enroll
+from student.models import Enroll, Work
 from student.lesson import *
+from survey.models import PreSurvey, PostSurvey
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from datetime import datetime
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
+
 register = template.Library()
 
 @register.filter()
@@ -147,19 +149,43 @@ def subtract(a, b):
     return a - b	
 
 @register.filter
-def lesson_name(unit, index):
-    return lesson_list[0][1][int(unit)-1][1][int(index)-1][0]
+def lesson_name(lesson, index):
+        lesson_dict = {}
+        for unit1 in lesson_list[int(lesson)-1][1]:
+            for assignment in unit1[1]:
+                lesson_dict[assignment[2]] = assignment[0]
+        return lesson_dict[int(index)]	
 	
 @register.filter
-def unit_name(unit):
-    return lesson_list[0][1][int(unit)-1][0]	
+def unit_name(unit, lesson):
+    return lesson_list[int(lesson)-1][1][int(unit)-1][0]
 	
 @register.filter
-def lesson_download(unit, index):
-    return lesson_list[0][1][int(unit)-1][1][int(index)-1][1]	
+def lesson_download(lesson, index):
+        lesson_dict = {}
+        for unit1 in lesson_list[int(lesson)-1][1]:
+            for assignment in unit1[1]:
+                lesson_dict[assignment[2]] = assignment[1]
+        return lesson_dict[int(index)]
 	
 @register.filter
 def student_username(name):
     start = "_"
     student = name[name.find(start)+1:]
     return student
+
+@register.filter
+def pre_survey_donw(user_id):
+    surveys = PreSurvey.objects.filter(student_id=user_id)
+    if len(surveys)>0:
+        return True
+    else:
+        return False
+			
+@register.filter
+def post_survey_donw(user_id):
+    surveys = PostSurvey.objects.filter(student_id=user_id)
+    if len(surveys)>0:
+        return True
+    else:
+        return False			

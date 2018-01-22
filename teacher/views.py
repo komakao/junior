@@ -320,7 +320,7 @@ def work(request, classroom_id):
     for unit in lesson_list[lesson-1][1]:
         for assignment in unit[1]:
             lesson_dict[assignment[2]] = assignment[0]
-    return render_to_response('teacher/work.html', {'lesson_dict':sorted(lesson_dict.iteritems()), 'classroom': classroom}, context_instance=RequestContext(request))
+    return render_to_response('teacher/work.html', {'lesson':lesson, 'lesson_dict':sorted(lesson_dict.iteritems()), 'classroom': classroom}, context_instance=RequestContext(request))
 			
 # 列出某作業所有同學名單
 def score(request, classroom_id, lesson, index):
@@ -333,16 +333,16 @@ def score(request, classroom_id, lesson, index):
     scorer_name = ""
     for enroll in enrolls:
         try:    
-            work = Work.objects.get(user_id=enroll.student_id, index=index)
+            work = Work.objects.get(user_id=enroll.student_id, index=index, lesson=lesson)
             if work.scorer > 0 :
                 scorer = User.objects.get(id=work.scorer)
                 scorer_name = scorer.first_name
             else :
                 scorer_name = "1"
         except ObjectDoesNotExist:
-            work = Work(index=index, user_id=0)
+            work = Work(index=index, user_id=0, lesson=lesson)
         except MultipleObjectsReturned:
-            work =  Work.objects.filter(user_id=enroll.student_id, index=index).order_by("-id")[0]
+            work =  Work.objects.filter(user_id=enroll.student_id, index=index, lesson=lesson).order_by("-id")[0]
         try:
             group_name = EnrollGroup.objects.get(id=enroll.group).name
         except ObjectDoesNotExist:
@@ -383,20 +383,20 @@ def scoring(request, classroom_id, user_id, lesson, index):
             return render_to_response('message.html', {'message':"您沒有權限"}, context_instance=RequestContext(request))
         
     try:
-        work3 = Work.objects.get(user_id=user_id, index=index)
+        work3 = Work.objects.get(user_id=user_id, index=index, lesson=lesson)
     except ObjectDoesNotExist:
-        work3 = Work(index=index, user_id=user_id)
+        work3 = Work(index=index, user_id=user_id, lesson=lesson)
     except MultipleObjectsReturned:
-        work3 =  Work.objects.filter(user_id=user_id, index=index).order_by("-id")[0]				
+        work3 =  Work.objects.filter(user_id=user_id, index=index, lesson=lesson).order_by("-id")[0]				
 				
     workfiles = WorkFile.objects.filter(work_id=work3.id).order_by("-id")
 		
     if request.method == 'POST':
         form = ScoreForm(request.user, request.POST)
         if form.is_valid():
-            work = Work.objects.filter(index=index, user_id=user_id)
+            work = Work.objects.filter(index=index, user_id=user_id, lesson=lesson)
             if not work.exists():
-                work = Work(index=index, user_id=user_id, score=form.cleaned_data['score'], publication_date=timezone.now())
+                work = Work(lesson=lesson, index=index, user_id=user_id, score=form.cleaned_data['score'], publication_date=timezone.now())
                 work.save()                  
             else:
                 if work[0].score < 0 :   
@@ -444,7 +444,7 @@ def scoring(request, classroom_id, user_id, lesson, index):
                 return redirect('/teacher/score_peer/'+ lesson + "/" + index+'/'+classroom_id+'/'+str(enroll.group))
 
     else:
-        work = Work.objects.filter(index=index, user_id=user_id)
+        work = Work.objects.filter(lesson=lesson, index=index, user_id=user_id)
         if not work.exists():
             form = ScoreForm(user=request.user)
         else:
@@ -461,7 +461,7 @@ def score_peer(request, lesson, index, classroom_id, group):
     try:
         assistant = Assistant.objects.get(lesson=index, classroom_id=classroom_id, student_id=request.user.id)
     except ObjectDoesNotExist:
-        return redirect("/student/group/work/"+index+"/"+classroom_id)
+        return redirect("/student/group/work/"+lesson+"/"+index+"/"+classroom_id)
 
     enrolls = Enroll.objects.filter(classroom_id=classroom_id, group=group)
     classmate_work = []
@@ -470,12 +470,12 @@ def score_peer(request, lesson, index, classroom_id, group):
         if not enroll.student_id == request.user.id : 
             scorer_name = ""
             try:    
-                work = Work.objects.get(user_id=enroll.student.id, index=index)
+                work = Work.objects.get(lesson=lesson, user_id=enroll.student.id, index=index)
                 if work.scorer > 0 :
                     scorer = User.objects.get(id=work.scorer)
                     scorer_name = scorer.first_name
             except ObjectDoesNotExist:
-                work = Work(index=index, user_id=1)
+                work = Work(lesson=lesson, index=index, user_id=1)
             workfiles = WorkFile.objects.filter(work_id=work.id)
             classmate_work.append([enroll.student,work,1, scorer_name])
     return render_to_response('teacher/score_peer.html',{'assignment':assignment, 'enrolls':enrolls, 'workfiles': workfiles, 'classmate_work': classmate_work, 'classroom_id':classroom_id, 'lesson':lesson, 'index': index}, context_instance=RequestContext(request))
@@ -558,7 +558,7 @@ def score_group(request, lesson, index, classroom_id):
             works = []
             scorer_name = ""
             for enroll in enrolls: 
-                sworks = Work.objects.filter(user_id=enroll.student_id, index=index).order_by("-id")
+                sworks = Work.objects.filter(user_id=enroll.student_id, index=index, lesson=lesson).order_by("-id")
                 if len(sworks) > 0:
                     work = sworks[0]
                     if work.scorer > 0 :
@@ -567,7 +567,7 @@ def score_group(request, lesson, index, classroom_id):
                     else :
                         scorer_name = "X"
                 else :
-                    work = Work(index=lesson, user_id=1, score=-2)
+                    work = Work(lesson=lesson, index=index, user_id=1, score=-2)
                 works.append([enroll, work.score, scorer_name])
                 try :
                     assistant = Assistant.objects.get(student_id=enroll.student.id, classroom_id=classroom_id, lesson=lesson)
@@ -606,7 +606,7 @@ def check(request, user_id, unit,classroom_id):
     user_name = User.objects.get(id=user_id).first_name
     del lesson_list[:]
     reset()
-    works = Work.objects.filter(user_id=user_id)
+    works = Work.objects.filter(lesson=lesson, user_id=user_id)
     for work in works:
         lesson_list[work.index-1].append(work.score)
         lesson_list[work.index-1].append(work.publication_date)
@@ -704,10 +704,6 @@ def check(request, user_id, unit,classroom_id):
         else:
             enroll = Enroll.objects.get(student_id=user_id, classroom_id=classroom_id)
             form = CheckForm4(instance=enroll)	
-    # 記錄系統事件
-    if is_event_open(request) :        
-        log = Log(user_id=request.user.id, event=u'查閱個人心得<'+user_name+'>')
-        log.save()  
     return render_to_response('teacher/check.html', {'form':form, 'works':works, 'lesson_list':lesson_list, 'student': user, 'unit':unit, 'classroom_id':classroom_id}, context_instance=RequestContext(request))
 
 	    
