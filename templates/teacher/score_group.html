@@ -3,7 +3,7 @@
 {% block content %}
         {{assignment}}
 		<BR>
-		<a href="/teacher/score/{{classroom_id}}/{{lesson}}">座號</a>
+		<a href="/teacher/score/{{classroom_id}}/{{lesson}}/{{index}}">座號</a>
 <table>
 <tr>
 <td>名稱</td>  
@@ -20,7 +20,7 @@
                 </td>
 									<td>
 				{% for enroll in group.1 %}
-				  <a target=_blank href="/teacher/scoring/{{classroom_id}}/{{enroll.0.student_id}}/{{lesson}}">({{enroll.0.seat}}){{enroll.0.student.first_name}}</a>-{% if enroll.1 == -2 %}<font color=grey>尚未繳交</font>{% elif enroll.1 == -1 %}<font color=red>尚未評分</font>{% else %}-{{enroll.1}}-{{enroll.2}}{% endif %}
+				  <a target=_blank href="/teacher/scoring/{{classroom_id}}/{{enroll.0.student_id}}/{{lesson}}/{{index}}">({{enroll.0.seat}}){{enroll.0.student.first_name}}</a>-{% if enroll.1 == -2 %}<font color=grey>尚未繳交</font>{% elif enroll.1 == -1 %}<font color=red>尚未評分</font>{% else %}-{{enroll.1}}-{{enroll.2}}{% endif %}
 				{% endfor %}
 				</td>
         {% endfor %}

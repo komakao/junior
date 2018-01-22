@@ -2,7 +2,7 @@
 from django.shortcuts import render_to_response, redirect
 from django.contrib.auth.models import User
 from django.template import RequestContext
-from account.models import Profile, VisitorLog
+from account.models import Profile, VisitorLog, PointHistory
 from django.views.generic import ListView, CreateView
 from django.shortcuts import render
 from account.avatar import *
@@ -29,10 +29,15 @@ def lessons(request, lesson):
 
 # 課程內容
 def lesson(request, lesson, unit, index):
+        lesson_dict = {}
+        for unit1 in lesson_list[int(lesson)-1][1]:
+            for assignment in unit1[1]:
+                lesson_dict[assignment[2]] = assignment[0]    
+        assignment = lesson_dict[int(index)]		
         scores = []
         workfiles = []
-        work_index = lesson_list[int(lesson)-1][1][int(unit)-1][1][int(index)-1][2]	
-        works = Work.objects.filter(index=work_index, user_id=request.user.id)
+        #work_index = lesson_list[int(lesson)-1][1][int(unit)-1][1][int(index)-1][2]	
+        works = Work.objects.filter(index=index, user_id=request.user.id)
         try:
             filepath = request.FILES['file']
         except :
@@ -55,7 +60,7 @@ def lesson(request, lesson, unit, index):
 										# credit
                     update_avatar(request.user.id, 1, 2)
                     # History
-                    history = PointHistory(user_id=request.user.id, kind=1, message='2分--繳交作業<'+lesson_list[int(index)-1][2]+'>', url=request.get_full_path())
+                    history = PointHistory(user_id=request.user.id, kind=1, message='2分--繳交作業<'+assignment+'>', url=request.get_full_path())
                     history.save()
             else:
                 if form.is_valid():

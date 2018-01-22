@@ -14,7 +14,7 @@
                 <tr>
                 <td>
                 {% if not list.1.user_id = 0 %} 
-                        {{list.0.seat}})<a href="/teacher/scoring/{{classroom_id}}/{{list.0.student.id}}/{{index}}">{{list.0.student.first_name}}-{{list.1.publication_date}}
+                        {{list.0.seat}})<a href="/teacher/scoring/{{classroom_id}}/{{list.0.student.id}}/{{lesson}}/{{index}}">{{list.0.student.first_name}}-{{list.1.publication_date}}
                     {% if list.1.score > 0 %}
                         ({{list.1.score}}-{{list.3}})
                     {%  endif %}
@@ -24,7 +24,7 @@
                 {% endif %}
                 </td>
                 <td>{{list.4}}</td>
-                <td>{% if list.2 > 0 %}小老師<a href="/teacher/assistant_cancle/{{list.0.classroom.id}}/{{list.0.student.id}}/{{index}}">(取消)</a>{% else %}<a href="/teacher/assistant/{{list.0.classroom.id}}/{{list.0.student.id}}/{{index}}">設定為小老師</a>{% endif %}</td>
+                <td>{% if list.2 > 0 %}小老師<a href="/teacher/assistant_cancle/{{list.0.classroom.id}}/{{list.0.student.id}}/{{lesson}}/{{index}}">(取消)</a>{% else %}<a href="/teacher/assistant/{{list.0.classroom.id}}/{{list.0.student.id}}/{{lesson}}/{{index}}">設定為小老師</a>{% endif %}</td>
                 </tr>
         {% endfor %}
         </table>

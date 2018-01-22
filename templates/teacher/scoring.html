@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Create a question{% endblock %}
+{% block content %}
+{% load tag %}
+    {{assignment}}
+    <br>
+    {% if  workfiles %}
+        班級：{{classroom.name}} / 學生：{{student.first_name}}
+        <br>
+<font color=red>作品：</font>
+{% if workfiles %}
+<script type="text/javascript" src="/static/sb2/swfobject.js"></script>
+ 
+<script >   
+var flashvars = {
+project: "/static/work/{{student.id}}/{{workfiles.0.filename}}" ,
+autostart: "false"
+};
+var params = {
+bgcolor: "#FFFFFF",
+allowScriptAccess: "always",
+allowFullScreen: "true",
+wmode: "window",
+menu:"‘false"
+};
+var attributes = {};
+swfobject.embedSWF("/static/sb2/Scratch.swf", "flashContent", "482", "387", "10.2.0","expressInstall.swf", flashvars, params, attributes);
+</script>
+              
+<div id="flashContent" >
+ 
+</div>   
+{% endif %}
+        {% for workfile in workfiles %}
+              <BR>第{{workfiles|length|subtract:forloop.counter|add:1}}版：<A href="/student/work/download/{{index}}/{{student.id}}/{{workfile.id}}">{{workfile.upload_date}}</A>
+        {% endfor %}
+<BR>
+  <font color=red>心得：</font>
+        <br>
+        {{work.memo}}
+        <form action="" enctype="multipart/form-data"  method="post">
+            <table>
+                {{ form.as_table }}
+            </table>
+            {% csrf_token %}
+            <input type="submit" value="Submit">
+        </form>
+    {% else %}
+        尚未繳交
+    {% endif %}
+{% endblock %}

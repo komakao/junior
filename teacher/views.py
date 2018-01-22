@@ -2,11 +2,11 @@
 from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from teacher.models import Classroom, ImportUser
-from student.models import Enroll, Work, EnrollGroup, Assistant
-from account.models import Profile, Message, MessagePoll, MessageFile
+from student.models import Enroll, Work, EnrollGroup, Assistant, WorkFile
+from account.models import Profile, Message, MessagePoll, MessageFile, PointHistory
 from student.lesson import *
 from django.views.generic import ListView, DetailView, CreateView
-from .forms import ClassroomForm, UploadFileForm, AnnounceForm
+from .forms import ClassroomForm, UploadFileForm, AnnounceForm, ScoreForm
 from account.forms import PasswordForm, RealnameForm
 from django.template import RequestContext
 from django.contrib.auth.models import User
@@ -23,6 +23,7 @@ from django.core.files.storage import FileSystemStorage
 from uuid import uuid4
 from django.contrib.auth.decorators import login_required
 from collections import OrderedDict
+from account.avatar import *
 
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
@@ -366,9 +367,15 @@ def score(request, classroom_id, lesson, index):
 
 
 # 教師評分
-def scoring(request, classroom_id, user_id, index):
+def scoring(request, classroom_id, user_id, lesson, index):
     user = User.objects.get(id=user_id)
     enroll = Enroll.objects.get(classroom_id=classroom_id, student_id=user_id)
+    classroom = Classroom.objects.get(id=classroom_id)
+    lesson_dict = {}
+    for unit in lesson_list[int(lesson)-1][1]:
+        for assignment in unit[1]:
+            lesson_dict[assignment[2]] = assignment[0]    
+    assignment = lesson_dict[int(index)]		
     try:
         assistant = Assistant.objects.filter(classroom_id=classroom_id,lesson=index,student_id=request.user.id)
     except ObjectDoesNotExist:            
@@ -390,11 +397,7 @@ def scoring(request, classroom_id, user_id, index):
             work = Work.objects.filter(index=index, user_id=user_id)
             if not work.exists():
                 work = Work(index=index, user_id=user_id, score=form.cleaned_data['score'], publication_date=timezone.now())
-                work.save()
-                # 記錄系統事件
-                if is_event_open() :            
-                    log = Log(user_id=request.user.id, event=u'新增評分<'+user.first_name+'><'+work.score+'分>')
-                    log.save()                      
+                work.save()                  
             else:
                 if work[0].score < 0 :   
                     # 小老師
@@ -402,21 +405,17 @@ def scoring(request, classroom_id, user_id, index):
     	                # credit
                         update_avatar(request.user.id, 2, 1)
                         # History
-                        history = PointHistory(user_id=request.user.id, kind=2, message='1分--小老師:<'+lesson_list[int(index)-1][2]+'><'+enroll.student.first_name.encode('utf-8')+'>', url=request.get_full_path())
+                        history = PointHistory(user_id=request.user.id, kind=2, message='1分--小老師:<'+assignment+'><'+enroll.student.first_name.encode('utf-8')+'>', url=request.get_full_path())
                         history.save()				
     
 				    # credit
                     update_avatar(enroll.student_id, 1, 1)
                     # History
-                    history = PointHistory(user_id=user_id, kind=1, message='1分--作業受評<'+lesson_list[int(index)-1][2]+'><'+request.user.first_name.encode('utf-8')+'>', url=request.get_full_path())
+                    history = PointHistory(user_id=user_id, kind=1, message='1分--作業受評<'+assignment+'><'+request.user.first_name.encode('utf-8')+'>', url=request.get_full_path())
                     history.save()		                        
                 
                 work.update(score=form.cleaned_data['score'])
-                work.update(scorer=request.user.id)
-                # 記錄系統事件
-                if is_event_open(request) :                   
-                    log = Log(user_id=request.user.id, event=u'更新評分<'+user.first_name+u'><'+str(work[0].score)+u'分>')
-                    log.save()                    
+                work.update(scorer=request.user.id)                 
 						
             if is_teacher(request.user, classroom_id):         
                 if form.cleaned_data['assistant']:
@@ -427,8 +426,8 @@ def scoring(request, classroom_id, user_id, index):
                         assistant.save()	
                         
                     # create Message
-                    title = "<" + assistant.student.first_name.encode("utf-8") + u">擔任小老師<".encode("utf-8") + lesson_list[int(index)-1][2] + ">"
-                    url = "/teacher/score_peer/" + str(index) + "/" + classroom_id + "/" + str(enroll.group) 
+                    title = "<" + assistant.student.first_name.encode("utf-8") + u">擔任小老師<".encode("utf-8") + assignment + ">"
+                    url = "/teacher/score_peer/" + lesson + "/" + str(index) + "/" + classroom_id + "/" + str(enroll.group) 
                     message = Message.create(title=title, url=url, time=timezone.now())
                     message.save()                        
                     
@@ -440,9 +439,9 @@ def scoring(request, classroom_id, user_id, index):
                             messagepoll = MessagePoll.create(message_id = message.id,reader_id=enroll.student_id)
                             messagepoll.save()
                     
-                return redirect('/teacher/score/'+classroom_id+'/'+index)
+                return redirect('/teacher/score/'+classroom_id+'/'+lesson+"/"+index)
             else: 
-                return redirect('/teacher/score_peer/'+index+'/'+classroom_id+'/'+str(enroll.group))
+                return redirect('/teacher/score_peer/'+ lesson + "/" + index+'/'+classroom_id+'/'+str(enroll.group))
 
     else:
         work = Work.objects.filter(index=index, user_id=user_id)
@@ -450,18 +449,21 @@ def scoring(request, classroom_id, user_id, index):
             form = ScoreForm(user=request.user)
         else:
             form = ScoreForm(instance=work[0], user=request.user)
-    lesson = lesson_list[int(index)-1]
-    return render_to_response('teacher/scoring.html', {'form': form,'workfiles':workfiles, 'index': index, 'work':work3, 'student':user, 'classroom_id':classroom_id, 'lesson':lesson}, context_instance=RequestContext(request))
+    return render_to_response('teacher/scoring.html', {'form': form,'workfiles':workfiles, 'index': index, 'work':work3, 'student':user, 'classroom':classroom, 'lesson':lesson, 'assignment':assignment}, context_instance=RequestContext(request))
 
 # 小老師評分名單
-def score_peer(request, index, classroom_id, group):
+def score_peer(request, lesson, index, classroom_id, group):
+    lesson_dict = {}
+    for unit in lesson_list[int(lesson)-1][1]:
+        for assignment in unit[1]:
+            lesson_dict[assignment[2]] = assignment[0]    
+    assignment = lesson_dict[int(index)]		
     try:
         assistant = Assistant.objects.get(lesson=index, classroom_id=classroom_id, student_id=request.user.id)
     except ObjectDoesNotExist:
         return redirect("/student/group/work/"+index+"/"+classroom_id)
 
     enrolls = Enroll.objects.filter(classroom_id=classroom_id, group=group)
-    lesson = ""
     classmate_work = []
     workfiles = []
     for enroll in enrolls:
@@ -476,30 +478,26 @@ def score_peer(request, index, classroom_id, group):
                 work = Work(index=index, user_id=1)
             workfiles = WorkFile.objects.filter(work_id=work.id)
             classmate_work.append([enroll.student,work,1, scorer_name])
-        lesson = lesson_list[int(index)-1]
-    # 記錄系統事件
-    if is_event_open(request) :        
-        log = Log(user_id=request.user.id, event=u'小老師評分名單<'+index+'><'+group+'>')
-        log.save()    
-    return render_to_response('teacher/score_peer.html',{'enrolls':enrolls, 'workfiles': workfiles, 'classmate_work': classmate_work, 'classroom_id':classroom_id, 'lesson':lesson, 'index': index}, context_instance=RequestContext(request))
+    return render_to_response('teacher/score_peer.html',{'assignment':assignment, 'enrolls':enrolls, 'workfiles': workfiles, 'classmate_work': classmate_work, 'classroom_id':classroom_id, 'lesson':lesson, 'index': index}, context_instance=RequestContext(request))
 
 # 設定為小老師
-def assistant(request, classroom_id, user_id, lesson):
+def assistant(request, classroom_id, user_id, lesson, index):
+    lesson_dict = {}
+    for unit in lesson_list[int(lesson)-1][1]:
+        for assignment in unit[1]:
+            lesson_dict[assignment[2]] = assignment[0]    
+    assignment = lesson_dict[int(index)]			
     # 限本班任課教師
     if not is_teacher(request.user, classroom_id):
-        return redirect("homepage")    
+        return redirect("/")    
     user = User.objects.get(id=user_id)
-    assistant = Assistant(student_id=user_id, classroom_id=classroom_id, lesson=lesson)
+    assistant = Assistant(student_id=user_id, classroom_id=classroom_id, lesson=index)
     assistant.save()
-    # 記錄系統事件
-    if is_event_open(request) :        
-        log = Log(user_id=request.user.id, event=u'設為小老師<'.encode("utf-8")+user.first_name.encode("utf-8")+'><'+ lesson_list[int(lesson)-1][2] + ">")
-        log.save()    
     
     group = Enroll.objects.get(classroom_id=classroom_id, student_id=assistant.student_id).group
     # create Message
-    title = "<" + assistant.student.first_name.encode("utf-8") + u">擔任小老師<".encode("utf-8") + lesson_list[int(lesson)-1][2] + ">"
-    url = "/teacher/score_peer/" + str(lesson) + "/" + classroom_id + "/" + str(group) 
+    title = "<" + assistant.student.first_name.encode("utf-8") + u">擔任小老師<".encode("utf-8") + assignment + ">"
+    url = "/teacher/score_peer/" + str(lesson) + "/" + index + "/" + classroom_id + "/" + str(group) 
     message = Message.create(title=title, url=url, time=timezone.now())
     message.save()                        
         
@@ -510,24 +508,25 @@ def assistant(request, classroom_id, user_id, lesson):
             messagepoll = MessagePoll.create(message_id = message.id,reader_id=enroll.student_id)
             messagepoll.save()
     
-    return redirect('/teacher/score/'+str(assistant.classroom_id)+"/"+lesson)    
+    return redirect('/teacher/score/'+str(assistant.classroom_id)+"/"+lesson+"/"+index)    
     
 # 取消小老師
-def assistant_cancle(request, classroom_id, user_id, lesson):
+def assistant_cancle(request, classroom_id, user_id, lesson, index):
+    lesson_dict = {}
+    for unit in lesson_list[int(lesson)-1][1]:
+        for assignment in unit[1]:
+            lesson_dict[assignment[2]] = assignment[0]    
+    assignment = lesson_dict[int(index)]			
     # 限本班任課教師
     if not is_teacher(request.user, classroom_id):
         return redirect("homepage")    
     user = User.objects.get(id=user_id)   
-    assistant = Assistant.objects.get(student_id=user_id, classroom_id=classroom_id, lesson=lesson)
+    assistant = Assistant.objects.get(student_id=user_id, classroom_id=classroom_id, lesson=index)
     assistant.delete()
-    # 記錄系統事件
-    if is_event_open(request) :        
-        log = Log(user_id=request.user.id, event=u'取消小老師<'.encode("utf-8")+user.first_name.encode("utf-8")+'><'+ lesson_list[int(lesson)-1][2] + ">")
-        log.save()     
     
     # create Message
-    title = "<" + assistant.student.first_name.encode("utf-8") + u">取消小老師<".encode("utf-8") + lesson_list[int(lesson)-1][2] + ">"
-    url = "/student/group/work/" + str(lesson) + "/" + classroom_id 
+    title = "<" + assistant.student.first_name.encode("utf-8") + u">取消小老師<".encode("utf-8") + assignment + ">"
+    url = "/student/group/work/" + str(lesson) + "/" + index + "/" + classroom_id 
     message = Message.create(title=title, url=url, time=timezone.now())
     message.save()                        
         
@@ -538,12 +537,11 @@ def assistant_cancle(request, classroom_id, user_id, lesson):
             # message for group member
             messagepoll = MessagePoll.create(message_id = message.id,reader_id=enroll.student_id)
             messagepoll.save()
-    
-
-    return redirect('/teacher/score/'+str(assistant.classroom_id)+"/"+lesson)    
+   
+    return redirect('/teacher/score/'+str(assistant.classroom_id)+"/"+lesson+"/"+index)    
     
 # 以分組顯示作業
-def work_group(request, lesson, index, classroom_id):
+def score_group(request, lesson, index, classroom_id):
         # 限本班任課教師
         if not is_teacher(request.user, classroom_id):
             return redirect("/")    
