@@ -41,7 +41,9 @@ def lessons(request, lesson):
                     if len(sworks)>0 :
                         lesson_list[int(lesson)-1][1][unit][1][index].append(sworks[0])
                     else :
-                        lesson_list[int(lesson)-1][1][unit][1][index].append(None)	
+                        lesson_list[int(lesson)-1][1][unit][1][index].append(False)
+                else :
+                    lesson_list[int(lesson)-1][1][unit][1][index].append(False)
         return render_to_response('student/lessons.html', {'lesson': lesson, 'lesson_list':lesson_list}, context_instance=RequestContext(request))
 
 # 課程內容
@@ -537,20 +539,26 @@ def work_group(request, classroom_id):
         lesson = Classroom.objects.get(id=classroom_id).lesson
         group = Enroll.objects.get(student_id=request.user.id, classroom_id=classroom_id).group
         enrolls = Enroll.objects.filter(classroom_id=classroom_id, group=group)		
+        group_name = EnrollGroup.objects.get(id=group).name
         student_ids = map(lambda a: a.student_id, enrolls)	
+        assistant_pool = [assistant for assistant in Assistant.objects.filter(student_id__in=student_ids, classroom_id=classroom_id)]				
         work_pool = Work.objects.filter(user_id__in=student_ids, lesson=lesson).order_by("id")					
         lessons = []		
         lesson_dict = OrderedDict()
         for unit1 in lesson_list[int(lesson)-1][1]:
             for assignment in unit1[1]:               
-                assistant = Assistant.objects.filter(student_id__in=student_ids, classroom_id=classroom_id, lesson=assignment[2])
+                members = filter(lambda u: u.group == group, enrolls)								
                 student_group = []
-                for enroll in enrolls:
+                group_assistants = []
+                for enroll in members:
                     sworks = filter(lambda w:(w.index==assignment[2] and w.user_id==enroll.student_id), work_pool)
                     if len(sworks) > 0:
                         student_group.append([enroll, sworks[0]])
                     else :
                         student_group.append([enroll, None])
-                lesson_dict[assignment[2]] = [assignment, student_group, assistant]
+                    assistant = filter(lambda a: a.student_id == enroll.student_id and a.lesson == assignment[2], assistant_pool)
+                    if assistant:
+                        group_assistants.append(enroll)												
+                lesson_dict[assignment[2]] = [assignment, student_group, group_assistants, group_name]
         return render_to_response('student/work_group.html', {'lesson_dict':sorted(lesson_dict.iteritems()), 'classroom_id':classroom_id}, context_instance=RequestContext(request))
  						

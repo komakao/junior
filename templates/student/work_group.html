@@ -7,13 +7,17 @@
 	{{key}}){{assignment.0.0}}
 <table>
 <tr>
+<td width=150>組別</td>
 <td width=150>小老師</td>
 <td>組員</td>  
 </tr>	
                 <tr>
+									<td>
+								{{assignment.3}}
+									</td>
                 <td>  
 									{% for assistant in assignment.2 %}
-				{{assistant.student_id|name}}<BR>                            
+				({{assistant.seat}}){{assistant.student_id|name}}<BR>                            
 									{% endfor %}
                 </td>
 									<td>               

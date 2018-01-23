@@ -706,4 +706,44 @@ def check(request, user_id, unit,classroom_id):
             form = CheckForm4(instance=enroll)	
     return render_to_response('teacher/check.html', {'form':form, 'works':works, 'lesson_list':lesson_list, 'student': user, 'unit':unit, 'classroom_id':classroom_id}, context_instance=RequestContext(request))
 
-	    
+# 列出分組12堂課所有作業
+def work_group(request, classroom_id):
+        # 限本班任課教師
+        if not is_teacher(request.user, classroom_id):
+            return redirect("/")    
+        classroom = Classroom.objects.get(id=classroom_id)
+        lesson = Classroom.objects.get(id=classroom_id).lesson
+        groups = [group for group in EnrollGroup.objects.filter(classroom_id=classroom_id)]				
+        enroll_pool = [enroll for enroll in Enroll.objects.filter(classroom_id=classroom_id).order_by('seat')]
+        student_ids = map(lambda a: a.student_id, enroll_pool)
+        work_pool = Work.objects.filter(user_id__in=student_ids, lesson=classroom.lesson)
+        user_pool = [user for user in User.objects.filter(id__in=work_pool.values('scorer'))]
+        assistant_pool = [assistant for assistant in Assistant.objects.filter(classroom_id=classroom_id)]				
+        lessons = []		
+        lesson_dict = OrderedDict()
+        for unit1 in lesson_list[int(lesson)-1][1]:
+            for assignment in unit1[1]:
+                student_groups = []													
+                for group in groups:
+                    members = filter(lambda u: u.group == group.id, enroll_pool)
+                    group_assistants = []
+                    works = []
+                    scorer_name = ""
+                    for member in members:
+                        work = filter(lambda w: w.index == assignment[2] and w.user_id == member.student_id, work_pool)
+                        if work:
+                            work = work[0]
+                            scorer = filter(lambda u: u.id == work.scorer, user_pool)
+                            scorer_name = scorer[0].first_name if scorer else 'X'
+                        else:
+                            work = Work(index=assignment[2], user_id=1, score=-2)
+                        works.append([member, work.score, scorer_name, work.memo])
+                        assistant = filter(lambda a: a.student_id == member.student_id and a.lesson == assignment[2], assistant_pool)
+                        if assistant:
+                            group_assistants.append(member)
+                    group_name = EnrollGroup.objects.get(id=group.id).name
+                    student_groups.append([group, works, group_assistants, group_name])
+                lesson_dict[assignment[2]] = [assignment, student_groups]
+        return render_to_response('teacher/work_group.html', {'lesson_dict':sorted(lesson_dict.iteritems()),'classroom':classroom}, context_instance=RequestContext(request))
+ 						
+		

@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^score_peer/(?P<lesson>\d+)/(?P<index>\d+)/(?P<classroom_id>\d+)/(?P<group>\d+)/$', views.score_peer),     
     url(r'^scoring/(?P<classroom_id>[^/]+)/(?P<user_id>\d+)/(?P<lesson>\d+)/(?P<index>\d+)/$', views.scoring),     
     url(r'^score/(?P<classroom_id>\d+)/(?P<lesson>\d+)/(?P<index>\d+)/$', views.score),   
-    url(r'^score/group/(?P<lesson>\d+)/(?P<index>\d+)/(?P<classroom_id>\d+)/$', views.score_group),   	
+    url(r'^score/group/(?P<lesson>\d+)/(?P<index>\d+)/(?P<classroom_id>\d+)/$', views.score_group),   
+    url(r'^work/group/(?P<classroom_id>\d+)/$', views.work_group),	
    		
 ]
