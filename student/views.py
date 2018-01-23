@@ -490,56 +490,40 @@ def memo_show(request, user_id, unit,classroom_id, score):
             lesson.append("")
         c = c + 1
         #enroll_group = Enroll.objects.get(classroom_id=classroom_id, student_id=request.user.id).group
-    user = User.objects.get(id=user_id)
-    # 記錄系統事件
-    if is_event_open(request) :      
-        log = Log(user_id=request.user.id, event=u'查看同學心得<'+user_name+'><'+unit+'>')
-        log.save()        
+    user = User.objects.get(id=user_id)      
     return render_to_response('student/memo_show.html', {'classroom_id': classroom_id, 'works':works, 'lesson_list':lesson_list, 'user_name': user_name, 'unit':unit, 'score':score}, context_instance=RequestContext(request))
 
 # 查詢作業進度
-def progress(request, classroom_id, unit):
-    bars = []
+def progress(request, classroom_id):
     bars1 = []
-    bars2 = []
-    bars3 = []
-    bars4 = []
-    a = 0
-    classroom = Classroom.objects.get(id=classroom_id)
-    enrolls = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")
+    lesson_dict = {}
+    classroom = Classroom.objects.get(id=classroom_id)	
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")		
+    student_ids = map(lambda a: a.student_id, enrolls)				
+    work_pool = Work.objects.filter(user_id__in=student_ids, lesson=classroom.lesson)			
+    for unit in lesson_list[int(classroom.lesson)-1][1]:
+        for assignment in unit[1]:
+             lesson_dict[assignment[2]] = assignment[0]
     for enroll in enrolls:
-        c = 0
-        for lesson in lesson_list :
-            works = Work.objects.filter(user_id=enroll.student_id, lesson=classroom.lesson)
-            bars.append([enroll, [], ""])
-            for work in works:
-                if work.index == c+1:
-                    bars[a*41+c][1] = work
-                    if work.scorer > 0 :
-                        score_name = User.objects.get(id=work.scorer).first_name
-                        bars[a*41+c][2] = score_name
-            c = c + 1
-        for i in range(17) :
-            bars1.append(bars[i+41*a])
-        for i in range(8) :
-            bars2.append(bars[i+17+41*a])
-        for i in range(8) :
-            bars3.append(bars[i+25+41*a])
-        for i in range(8) :
-            bars4.append(bars[i+33+41*a])
-        a = a + 1
-    # 記錄系統事件
-    if is_event_open(request) :      
-        log = Log(user_id=request.user.id, event=u'查看作業進度<'+unit+'><'+classroom.name+'>')
-        log.save()           
-    return render_to_response('student/progress.html', {'unit':unit, 'bars1':bars1, 'bars2':bars2, 'bars3':bars3, 'bars4':bars4,'classroom':classroom, 'lesson_list': lesson_list,}, context_instance=RequestContext(request))
+        bars = []
+        for key, assignment in lesson_dict.items():
+            works = filter(lambda u: ((u.user_id == enroll.student_id) and (u.index==key)), work_pool)
+            if len(works) > 0:
+                bars.append([enroll, works[0]])
+            else :
+                bars.append([enroll, None]) 
+        bars1.append(bars)
+    return render_to_response('student/progress.html', {'bars1':bars1,'classroom':classroom, 'lesson_dict':sorted(lesson_dict.iteritems())}, context_instance=RequestContext(request))
     
 # 所有作業的小老師
 def work_group(request, classroom_id):
         lesson = Classroom.objects.get(id=classroom_id).lesson
         group = Enroll.objects.get(student_id=request.user.id, classroom_id=classroom_id).group
-        enrolls = Enroll.objects.filter(classroom_id=classroom_id, group=group)		
-        group_name = EnrollGroup.objects.get(id=group).name
+        enrolls = Enroll.objects.filter(classroom_id=classroom_id, group=group)
+        try:
+            group_name = EnrollGroup.objects.get(id=group).name
+        except ObjectDoesNotExist:
+            group_name = "沒有組別"
         student_ids = map(lambda a: a.student_id, enrolls)	
         assistant_pool = [assistant for assistant in Assistant.objects.filter(student_id__in=student_ids, classroom_id=classroom_id)]				
         work_pool = Work.objects.filter(user_id__in=student_ids, lesson=lesson).order_by("id")					

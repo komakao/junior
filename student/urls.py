@@ -15,11 +15,8 @@ urlpatterns = [
     url(r'^classroom/add/$', views.classroom_add),  
     url(r'^classroom/$', views.classroom),
 		url(r'^classroom/seat/(?P<enroll_id>\d+)/(?P<classroom_id>\d+)/$', views.seat_edit),
-    # 作業上傳
-    #url(r'^work/(?P<classroom_id>\d+)/$', views.work),  
-    #url(r'^work/download/(?P<index>\d+)/(?P<user_id>\d+)/(?P<workfile_id>\d+)/$', views.work_download),  	
-    #url(r'^work1/(?P<classroom_id>\d+)/$', views.work1),  	
-    #url(r'^submit/(?P<lesson>[^/]+)/(?P<index>\d+)/$', views.submit),         
+    # 作業進度查詢
+    url(r'^progress/(?P<classroom_id>\d+)/$', views.progress),         
     # 同學
     url(r'^classmate/(?P<classroom_id>\d+)/$', views.classmate), 
     url(r'^loginlog/(?P<user_id>\d+)/$', views.LoginLogListView.as_view()),    

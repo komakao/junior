@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block title %} Welcome ! {% endblock %}
+{% block content %}
+        <table border=1>
+            <tr>
+                <Td></Td>
+                {% for key, assignment in lesson_dict %}
+                    <td><font size=-2>{{assignment}}</font></td>            
+                {% endfor %}
+            </tr>
+            {% for bar in bars1 %}
+                <tr>
+                <Td nowrap>{{bar.0.0.seat}}){{bar.0.0.student.first_name}}
+                {% if bar.0.0.certificate1 %}
+                    <a target="_blank" href="/certificate/show/{{unit}}/{{bar.0.0.id}}"><img src="/static/images/certificate.png"></a>
+                {% endif %}    
+                  {% for enroll, work in bar %}
+                <Td nowrap><font size=-2>{% if work %}{{work.publication_date|date:"Y/m/d"}}</font><br>{{work.score}}-<font size=-2>{% if work.scorer > 0 %}{{work.scorer|name}}{% endif %}{% endif %}</font></Td>
+                {% endfor %}
+            {% endfor %}
+             </tr>
+        </table>
+
+{% endblock %}
+{% block domready %}
+  $('a.certificate').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+    $.post('/certificate/make/',
+      {
+        unit: $(launcher).data('unit'),
+	    classroomid: $(launcher).data('classroomid'),	
+        enrollid: $(launcher).data('enrollid'),
+        action: $(launcher).data('action')
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          var previous_action = $(launcher).data('action');
+		   if (previous_action == 'certificate') {
+               $(launcher).html("取消證書");
+               $(launcher).data('action', 'uncertificate');
+               $(launcher).parent().append('<a target="certView" href="/certificate/show/'+ $(launcher).data('unit') + '/' + $(launcher).data('enrollid')+ '"> <img src="/static/images/certificate.png"></a>');
+           } else {
+               $(launcher).data('action', 'certificate');
+               $(launcher).html("發證書");
+               $("a:last-child", $(launcher).parent()).remove();
+           }
+        }
+		else {
+				alert(data['student_id']);
+		}
+      }
+    );
+  });
+{% endblock %}
