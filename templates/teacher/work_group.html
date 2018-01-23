@@ -23,7 +23,7 @@
 									<td>               
 				{% for enroll, score, scorer, memo in works %}                    
             {% if request.user.id in assistants or request.user.id == classroom.teacher_id %}<a target=_blank href="/teacher/scoring/{{classroom.id}}/{{enroll.student_id}}/{{classroom.lesson}}/{{assignment.0.2}}">{% endif %}({{enroll.seat}}){{enroll.student.first_name}}{% if request.user.id in assistant or request.user.id == classroom.teacher_id %}</a>{% endif %}
-					  -{% if score == -2 %}<font color=grey>尚未繳交</font>{% else %}{% if score > 0 %}{{score}}{% else %}<font color=red>尚未評分</font>{% endif %}{% endif %}
+					  -{% if score == -2 %}<font color=green>尚未繳交</font>{% else %}{% if score > 0 %}{{score}}-{{scorer}}{% else %}<font color=red>尚未評分</font>{% endif %}{% endif %}
 					
 				{% endfor %}
 				</td>

@@ -23,7 +23,7 @@
 									<td>               
 				{% for enroll, work in assignment.1 %}
             {% if request.user.id in assistant %}<a target=_blank href="/teacher/scoring/{{classroom_id}}/{{enroll.0.student_id}}/{{forloop.parentloop.counter}}">{% endif %}({{enroll.seat}}){{enroll.student.first_name}}{% if request.user.id in assistant %}</a>{% endif %}
-					  -{% if not work %}<font color=grey>尚未繳交</font>{% else %}{% if work.score > 0 %}{{work.score}}{% else %}<font color=red>尚未評分</font>{% endif %}{% endif %}
+					  -{% if not work %}<font color=green>尚未繳交</font>{% else %}{% if work.score > 0 %}{{work.score}}-{{work.scorer|name}}{% else %}<font color=red>尚未評分</font>{% endif %}{% endif %}
 					
 				{% endfor %}
 				</td>
