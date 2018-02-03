@@ -8,8 +8,8 @@
 <section class="wrapper">
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active"><a aria-control="tab1" data-toggle="tab" role="tab" href="#tab1">範例展示</a></li>
-		{% if user.is_authenticated %}
-    {% if lesson|lesson_download:index %}
+		{% if user.is_authenticated %}		
+		{% if lesson|lesson_download:index %}
     <li role="presentation"><a aria-control="tab2" data-toggle="tab" role="tab" href="#tab2">素材下載</a></li>    
     {% endif %}
     <li role="presentation"><a aria-control="tab3" data-toggle="tab" role="tab" href="#tab3">作業上傳</a></li>
@@ -21,7 +21,7 @@
     </article>
     <!--------------------------------------------------------->
     <article id="tab2" class="tab-pane fade" role="tabpanel">
-12344
+<a href="/static/files/{{lesson|lesson_download:index}}">檔案下載</a>
     </article>   
     <!--------------------------------------------------------->
     <article id="tab3" class="tab-pane fade" role="tabpanel">
