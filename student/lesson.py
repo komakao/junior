@@ -2,7 +2,7 @@
 lesson_list = []
 
 def reset():
-    lesson_list.append(['基礎程式設計：使用Scratch', []])
+    lesson_list.append(['基礎程式設計：使用Scratch 2.X', []])
     lesson_list[0][1].append(['基礎篇', []])
     lesson_list[0][1][0][1].append(['例：貓狗對話', False, 1, 199354464])
     lesson_list[0][1][0][1].append(['練：勇者鬥惡龍', False, 2, 199356271])    

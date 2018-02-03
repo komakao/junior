@@ -7,8 +7,8 @@
      <h1>{{lesson|lesson_name:index}}</h1>
 <section class="wrapper">
   <ul class="nav nav-tabs" role="tablist">
+		{% if user.is_authenticated %}				
     <li role="presentation" class="active"><a aria-control="tab1" data-toggle="tab" role="tab" href="#tab1">範例展示</a></li>
-		{% if user.is_authenticated %}		
 		{% if lesson|lesson_download:index %}
     <li role="presentation"><a aria-control="tab2" data-toggle="tab" role="tab" href="#tab2">素材下載</a></li>    
     {% endif %}
@@ -17,8 +17,12 @@
   </ul>
   <section class="tab-content">
     <article id="tab1" class="tab-pane fade in active" role="tabpanel">
-<iframe allowtransparency="true" width="485" height="402" src="http://scratch.mit.edu/projects/embed/{{assignment.0.3}}/?autostart=false" frameborder=“0” allowfullscreen></iframe>			
-    </article>
+		{% if user.is_authenticated %}			
+			<iframe allowtransparency="true" width="485" height="402" src="http://scratch.mit.edu/projects/embed/{{assignment.0.3}}/?autostart=false" frameborder=“0” allowfullscreen></iframe>			
+    {% else %}
+			請登入系統!
+		{% endif %}
+		</article>
     <!--------------------------------------------------------->
     <article id="tab2" class="tab-pane fade" role="tabpanel">
 <a href="/static/files/{{lesson|lesson_download:index}}" role="btn" class="btn">檔案下載</a>
