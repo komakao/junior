@@ -44,7 +44,9 @@
     </div>
 <table>
     {% for answer in result.0.3 %}
+    {% if answer %}
     <tr><td>{{answer}}</td></tr>
+    {% endif %}
     {% endfor %}
 </table>
     {% for question in questions %}

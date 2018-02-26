@@ -150,6 +150,15 @@ def student_login(request):
                                 if user.is_active:                                                                                               
                                         # 登入成功，導到大廳
                                         login(request, user)
+																	      # 記錄訪客資訊
+                                        admin_user = User.objects.get(id=1)
+                                        try:
+                                            profile = Profile.objects.get(user=admin_user)
+                                        except ObjectDoesNotExist:
+                                            profile = Profile(user=admin_user)
+                                            profile.save()
+                                        profile.visitor_count = profile.visitor_count + 1
+                                        profile.save()
                                         try:
                                             profile = Profile.objects.get(user=user)
                                         except ObjectDoesNotExist:
