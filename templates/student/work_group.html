@@ -17,7 +17,7 @@
 				<td>
 				{% for enroll in group.1 %}
 				    ({{enroll.0.seat}}){{enroll.0.student.first_name}}
-					{% if enroll.1 == -2 %}-尚未繳交{% else %}{% if enroll.1 == -1 %}-尚未評分{% else %}-{{enroll.1}}-{{enroll.2}}{% endif %}{% endif %}
+					{% if enroll.1 == -2 %}-尚未繳交{% else %}{% if enroll.1 < 0  %}-尚未評分{% else %}-{{enroll.1}}-{{enroll.2}}{% endif %}{% endif %}
 				{% endfor %}
 				</td>
                 <td>
