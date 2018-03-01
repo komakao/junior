@@ -366,7 +366,7 @@ def work_group(request, index, classroom_id):
                     work = Work(lesson=lesson, index=index, user_id=1, score=-2)
                 works.append([enroll, work.score, scorer_name, work.file])
                 try :
-                    assistant = Assistant.objects.get(student_id=enroll.student.id, classroom_id=classroom_id, lesson=lesson)
+                    assistant = Assistant.objects.get(student_id=enroll.student.id, classroom_id=classroom_id, lesson=index)
                     group_assistants.append(enroll)
                 except ObjectDoesNotExist:
 				    pass
@@ -376,9 +376,8 @@ def work_group(request, index, classroom_id):
             for assignment in unit[1]:
                 lesson_dict[assignment[2]] = assignment[0]    
         assignment = lesson_dict[int(index)]	     
-        return render_to_response('student/work_group.html', {'lesson':lesson, 'assignment':assignment, 'student_groups':student_groups, 'classroom_id':classroom_id, 'student_group':student_group}, context_instance=RequestContext(request))
+        return render_to_response('student/work_group.html', {'lesson':lesson, 'assignment':assignment, 'student_groups':student_groups, 'classroom_id':classroom_id}, context_instance=RequestContext(request))
 
-# 查詢某作業所有同學心得
 def memo(request, classroom_id, index):
     classroom = Classroom.objects.get(id=classroom_id)
     lesson = classroom.lesson
