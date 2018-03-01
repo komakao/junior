@@ -364,6 +364,8 @@ def work_group(request, index, classroom_id):
                         scorer_name = "X"
                 except ObjectDoesNotExist:
                     work = Work(lesson=lesson, index=index, user_id=1, score=-2)
+                except MultipleObjectsReturned:
+                    work = Work.objects.filter(user_id=enroll.student_id, index=index, lesson=lesson).order_by("-id")[0]
                 works.append([enroll, work.score, scorer_name, work.file])
                 try :
                     assistant = Assistant.objects.get(student_id=enroll.student.id, classroom_id=classroom_id, lesson=index)
