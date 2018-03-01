@@ -516,7 +516,7 @@ def progress(request, classroom_id):
     return render_to_response('student/progress.html', {'bars1':bars1,'classroom':classroom, 'lesson_dict':sorted(lesson_dict.iteritems())}, context_instance=RequestContext(request))
     
 # 所有作業的小老師
-def work_group(request, classroom_id):
+def work_groups(request, classroom_id):
         lesson = Classroom.objects.get(id=classroom_id).lesson
         group = Enroll.objects.get(student_id=request.user.id, classroom_id=classroom_id).group
         enrolls = Enroll.objects.filter(classroom_id=classroom_id, group=group)
@@ -544,5 +544,5 @@ def work_group(request, classroom_id):
                     if assistant:
                         group_assistants.append(enroll)												
                 lesson_dict[assignment[2]] = [assignment, student_group, group_assistants, group_name]
-        return render_to_response('student/work_group.html', {'lesson_dict':sorted(lesson_dict.iteritems()), 'classroom_id':classroom_id}, context_instance=RequestContext(request))
+        return render_to_response('student/work_groups.html', {'lesson_dict':sorted(lesson_dict.iteritems()), 'classroom_id':classroom_id}, context_instance=RequestContext(request))
  						

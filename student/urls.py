@@ -35,7 +35,7 @@ urlpatterns = [
     # 作業上傳
     url(r'^work/(?P<classroom_id>\d+)/$', views.work),  
     url(r'^work/download/(?P<lesson>\d+)/(?P<index>\d+)/(?P<user_id>\d+)/(?P<workfile_id>\d+)/$', views.work_download),  	
-    url(r'^work/group/(?P<classroom_id>\d+)/$', views.work_group),	
+    url(r'^work/groups/(?P<classroom_id>\d+)/$', views.work_groups),	
     #查詢該作業所有同學心得
     url(r'^memo/(?P<classroom_id>[^/]+)/(?P<index>[^/]+)/$', views.memo),   
     url(r'^memo_user/(?P<user_id>\d+)/(?P<lesson>\d+)/$', views.memo_user),	
