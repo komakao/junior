@@ -540,49 +540,6 @@ def assistant_cancle(request, classroom_id, user_id, lesson, index):
    
     return redirect('/teacher/score/'+str(assistant.classroom_id)+"/"+lesson+"/"+index)    
     
-# 以分組顯示作業
-def score_group(request, lesson, index, classroom_id):
-        # 限本班任課教師
-        if not is_teacher(request.user, classroom_id):
-            return redirect("/")    
-        classroom_name = Classroom.objects.get(id=classroom_id).name
-        student_groups = []
-        groups = EnrollGroup.objects.filter(classroom_id=classroom_id)
-        try:
-                student_group = Enroll.objects.get(student_id=request.user.id, classroom_id=classroom_id).group
-        except ObjectDoesNotExist :
-                student_group = []		
-        for group in groups:
-            enrolls = Enroll.objects.filter(classroom_id=classroom_id, group=group.id)
-            group_assistants = []
-            works = []
-            scorer_name = ""
-            for enroll in enrolls: 
-                sworks = Work.objects.filter(user_id=enroll.student_id, index=index, lesson=lesson).order_by("-id")
-                if len(sworks) > 0:
-                    work = sworks[0]
-                    if work.scorer > 0 :
-                        scorer = User.objects.get(id=work.scorer)
-                        scorer_name = scorer.first_name
-                    else :
-                        scorer_name = "X"
-                else :
-                    work = Work(lesson=lesson, index=index, user_id=1, score=-2)
-                works.append([enroll, work.score, scorer_name])
-                try :
-                    assistant = Assistant.objects.get(student_id=enroll.student.id, classroom_id=classroom_id, lesson=lesson)
-                    group_assistants.append(enroll)
-                except ObjectDoesNotExist:
-				    pass
-            student_groups.append([group, works, group_assistants])
-        lesson_dict = {}
-        for unit in lesson_list[int(lesson)-1][1]:
-            for assignment in unit[1]:
-                lesson_dict[assignment[2]] = assignment[0]    
-        assignment = lesson_dict[int(index)]     
-
-        return render_to_response('teacher/work_groups.html', {'lesson':lesson, 'index':index, 'assignment':assignment, 'student_groups':student_groups, 'classroom_id':classroom_id, 'student_group':student_group}, context_instance=RequestContext(request))
-
 # 心得
 def memo(request, classroom_id):
         # 限本班任課教師
@@ -744,6 +701,6 @@ def work_group(request, classroom_id):
                     group_name = EnrollGroup.objects.get(id=group.id).name
                     student_groups.append([group, works, group_assistants, group_name])
                 lesson_dict[assignment[2]] = [assignment, student_groups]
-        return render_to_response('teacher/work_group.html', {'lesson_dict':sorted(lesson_dict.iteritems()),'classroom':classroom}, context_instance=RequestContext(request))
+        return render_to_response('teacher/work_groups.html', {'lesson_dict':sorted(lesson_dict.iteritems()),'classroom':classroom}, context_instance=RequestContext(request))
  						
 		
