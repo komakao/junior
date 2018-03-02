@@ -44,13 +44,16 @@ Licence URI: http://www.os-templates.com/template-terms
             <li><a href="/account/profile/{{user.id}}/#tab2" onclick="location.reload()">證書</a></li>
           </ul>
 				</li>		
-            {% if request.user|has_group:"active_teacher" %} 	
+            {% if user|has_group:"active_teacher" %} 	
 						<li><a href="/teacher/classroom"><img  width=16 src="/static/images/icon_teacher.png">教師</a></li>
 						{% endif %}
                  {% if user.is_superuser %}
                  <li><a href="/account/userlist"><img  width=16 src="/static/images/icon_admin.png">帳號</a></li>
+		
                  {% endif %}			
+            {% if user|has_group:"active_teacher"  or user.is_superuser %} 				
 		    <li><a href="/account/visitor"><img  width=16 src="/static/images/icon_visitor.png">訪客</a></li>					
+			{% endif %}
                 <li><a href="/account/logout">登出</a></li>
 		</ul>  <ul class="nav navbar-nav navbar-right">			
                 <a href="/account/avatar/"><img src="/static/avatar/s{{ request.user.profile.avatar }}.png"></a><strong>{{ request.user.first_name }}</strong>
