@@ -3,7 +3,6 @@
 {% block content %}
 <table>
         <tr>
-            <td>學校</td>
             <td>班級</td>					
 					  <td>姓名</td>
             <td>時間</td>
@@ -11,7 +10,6 @@
         </tr>
         {% for log in visitorlogs %}
             <tr>
-							  <td>{{log.user_id|school}}</td>
 							  <td>{{log.user_id|classroom}}</td>
                 <td nowrap><a href="/account/profile/{{log.user_id}}">{{log.user_id|name}}</a></td>
 				<td nowrap>{{log.time| date:"DATE_FORMAT"}}</td>
