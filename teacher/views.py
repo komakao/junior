@@ -581,7 +581,7 @@ def score_group(request, lesson, index, classroom_id):
                 lesson_dict[assignment[2]] = assignment[0]    
         assignment = lesson_dict[int(index)]     
 
-        return render_to_response('teacher/work_group.html', {'lesson':lesson, 'index':index, 'assignment':assignment, 'student_groups':student_groups, 'classroom_id':classroom_id, 'student_group':student_group}, context_instance=RequestContext(request))
+        return render_to_response('teacher/work_groups.html', {'lesson':lesson, 'index':index, 'assignment':assignment, 'student_groups':student_groups, 'classroom_id':classroom_id, 'student_group':student_group}, context_instance=RequestContext(request))
 
 # 心得
 def memo(request, classroom_id):
