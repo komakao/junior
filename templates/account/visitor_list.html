@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% block title %} Teachers {% endblock %}
 {% load tag %}
 {% block header %}
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -43,5 +42,6 @@
             </tr>
         {% endfor %}
         </table>
- {% include "pagination.html" with page=page_obj %}          
+        {% load pagination %}
+        {% get_pagination %}      
 {% endblock %}
