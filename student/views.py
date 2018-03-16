@@ -331,7 +331,7 @@ def work_download(request, lesson, index, user_id, workfile_id):
     filename = username + "_" + lesson_dict[int(index)].encode("utf8")  + ".sb2"
     download =  settings.BASE_DIR + "/static/work/" + str(user_id) + "/" + workfile.filename
     wrapper = FileWrapper(file( download, "r" ))
-    response = HttpResponse(wrapper, content_type = 'application/force-download')
+    response = HttpResponse(wrapper, content_type = 'application/zip')
     #response = HttpResponse(content_type='application/force-download')
     response['Content-Disposition'] = 'attachment; filename={0}'.format(filename.encode('utf8'))
     # It's usually a good idea to set the 'Content-Length' header too.
