@@ -6,7 +6,7 @@ from django.utils import timezone
 # 班級
 class Classroom(models.Model):
     Lesson_CHOICES = [
-        (1, '基礎程式設計'),
+        (1, '基礎程式設計：使用Scratch 2.X'),
         (2, '進階程式設計'),
     ]	
     # 班級名稱

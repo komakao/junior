@@ -167,6 +167,28 @@ def lesson_download(lesson, index):
             for assignment in unit1[1]:
                 lesson_dict[assignment[2]] = assignment[1]
         return lesson_dict[int(index)]
+			
+@register.filter
+def lesson_resource1(lesson, index):
+        lesson_dict = {}
+        for unit1 in lesson_list[int(lesson)-1][1]:
+            for assignment in unit1[1]:
+                lesson_dict[assignment[2]] = assignment[4]
+        if lesson_dict[int(index)] :
+            return lesson_dict[int(index)][0]
+        else :
+            return False
+			
+@register.filter
+def lesson_resource2(lesson, index):
+        lesson_dict = {}
+        for unit1 in lesson_list[int(lesson)-1][1]:
+            for assignment in unit1[1]:
+                lesson_dict[assignment[2]] = assignment[4]
+        if lesson_dict[int(index)] :
+            return lesson_dict[int(index)][1]
+        else :
+            return False
 	
 @register.filter
 def student_username(name):

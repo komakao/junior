@@ -9,7 +9,7 @@
 </tr>
         {% for classroom, teacher_name, enroll in classroom_teachers %}
             <tr>
-                <td>{{classroom.name}}</td>
+                <td>{{classroom.name}}({{classroom.lesson_choice}})</td>
                 <td>{{teacher_name}}</td>
                 <td>
                 {% if enroll == 1 %}

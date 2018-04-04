@@ -10,7 +10,7 @@ from student.models import Work, Enroll
 class ClassroomForm(forms.ModelForm):
         class Meta:
            model = Classroom
-           fields = ['name','lesson', 'password']
+           fields = ['lesson', 'name', 'password']
         
         def __init__(self, *args, **kwargs):
             super(ClassroomForm, self).__init__(*args, **kwargs)
