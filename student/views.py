@@ -93,7 +93,7 @@ def lesson(request, lesson, unit, index):
                     workfile.save()
                 else :
                     works.update(memo=form.cleaned_data['memo'])           
-            return redirect('/student/lesson/'+lesson+'/'+unit+"/"+index+"#tab3")
+            return redirect('/student/lesson/'+lesson+'/'+unit+"/"+index+"#tab4")
         else:
             if not works.exists():
                 form = SubmitForm()
