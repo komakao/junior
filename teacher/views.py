@@ -68,7 +68,7 @@ def classroom_edit(request, classroom_id):
     else:
         form = ClassroomForm(instance=classroom)
 
-    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))        
+    return render(request, 'form.html',{'form': form})
 
 # 退選
 def unenroll(request, enroll_id, classroom_id):
@@ -180,7 +180,7 @@ def password(request, user_id):
         form = PasswordForm()
         user = User.objects.get(id=user_id)
 
-    return render_to_response('form.html',{'form': form, 'user':user}, context_instance=RequestContext(request))
+    return render(request, 'form.html',{'form': form, 'user':user})
 
 # 修改真實姓名
 def realname(request, user_id):
@@ -208,7 +208,7 @@ def realname(request, user_id):
         else:
             return redirect("/")
 
-    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))							
+    return render(request, 'form.html',{'form': form})
 						
 # 列出所有公告
 class AnnounceListView(ListView):
@@ -295,7 +295,7 @@ def announce_detail(request, message_id):
     announce_reads = sorted(announce_reads, key=getKey)
 
     files = MessageFile.objects.filter(message_id=message_id)
-    return render_to_response('teacher/announce_detail.html', {'files':files, 'message':message, 'classroom':classroom, 'announce_reads':announce_reads}, context_instance=RequestContext(request))
+    return render(request, 'teacher/announce_detail.html', {'files':files, 'message':message, 'classroom':classroom, 'announce_reads':announce_reads})
 
 def announce_download(request, messagefile_id):
     messagefile = MessageFile.objects.get(id=messagefile_id)
@@ -320,7 +320,7 @@ def work(request, classroom_id):
     for unit in lesson_list[lesson-1][1]:
         for assignment in unit[1]:
             lesson_dict[assignment[2]] = assignment[0]
-    return render_to_response('teacher/work.html', {'lesson':lesson, 'lesson_dict':sorted(lesson_dict.iteritems()), 'classroom': classroom}, context_instance=RequestContext(request))
+    return render(request, 'teacher/work.html', {'lesson':lesson, 'lesson_dict':sorted(lesson_dict.iteritems()), 'classroom': classroom})
 			
 # 列出某作業所有同學名單
 def score(request, classroom_id, lesson, index):
@@ -363,7 +363,7 @@ def score(request, classroom_id, lesson, index):
 	
     classmate_work = sorted(classmate_work, key=getKey)
          
-    return render_to_response('teacher/score.html',{'lesson':lesson, 'classmate_work': classmate_work, 'classroom_id':classroom_id, 'assignment':assignment, 'index': index}, context_instance=RequestContext(request))
+    return render(request, 'teacher/score.html',{'lesson':lesson, 'classmate_work': classmate_work, 'classroom_id':classroom_id, 'assignment':assignment, 'index': index})
 
 
 # 教師評分
@@ -380,7 +380,7 @@ def scoring(request, classroom_id, user_id, lesson, index):
         assistant = Assistant.objects.filter(classroom_id=classroom_id,lesson=index,student_id=request.user.id)
     except ObjectDoesNotExist:            
         if not is_teacher(request.user, classroom_id):
-            return render_to_response('message.html', {'message':"您沒有權限"}, context_instance=RequestContext(request))
+            return render(request, 'message.html', {'message':"您沒有權限"})
         
     try:
         work3 = Work.objects.get(user_id=user_id, index=index, lesson=lesson)
@@ -449,7 +449,7 @@ def scoring(request, classroom_id, user_id, lesson, index):
             form = ScoreForm(user=request.user)
         else:
             form = ScoreForm(instance=work[0], user=request.user)
-    return render_to_response('teacher/scoring.html', {'form': form,'workfiles':workfiles, 'index': index, 'work':work3, 'student':user, 'classroom':classroom, 'lesson':lesson, 'assignment':assignment}, context_instance=RequestContext(request))
+    return render(request, 'teacher/scoring.html', {'form': form,'workfiles':workfiles, 'index': index, 'work':work3, 'student':user, 'classroom':classroom, 'lesson':lesson, 'assignment':assignment})
 
 # 小老師評分名單
 def score_peer(request, lesson, index, classroom_id, group):
@@ -478,7 +478,7 @@ def score_peer(request, lesson, index, classroom_id, group):
                 work = Work(lesson=lesson, index=index, user_id=1)
             workfiles = WorkFile.objects.filter(work_id=work.id)
             classmate_work.append([enroll.student,work,1, scorer_name])
-    return render_to_response('teacher/score_peer.html',{'assignment':assignment, 'enrolls':enrolls, 'workfiles': workfiles, 'classmate_work': classmate_work, 'classroom_id':classroom_id, 'lesson':lesson, 'index': index}, context_instance=RequestContext(request))
+    return render(request, 'teacher/score_peer.html',{'assignment':assignment, 'enrolls':enrolls, 'workfiles': workfiles, 'classmate_work': classmate_work, 'classroom_id':classroom_id, 'lesson':lesson, 'index': index})
 
 # 設定為小老師
 def assistant(request, classroom_id, user_id, lesson, index):
@@ -551,7 +551,7 @@ def memo(request, classroom_id):
         if is_event_open(request) :            
             log = Log(user_id=request.user.id, event=u'查閱心得<'+classroom_name+'>')
             log.save()  
-        return render_to_response('teacher/memo.html', {'enrolls':enrolls, 'classroom_name':classroom_name}, context_instance=RequestContext(request))
+        return render(request, 'teacher/memo.html', {'enrolls':enrolls, 'classroom_name':classroom_name})
 
 # 評分某同學某進度心得
 @login_required
@@ -661,7 +661,7 @@ def check(request, user_id, unit,classroom_id):
         else:
             enroll = Enroll.objects.get(student_id=user_id, classroom_id=classroom_id)
             form = CheckForm4(instance=enroll)	
-    return render_to_response('teacher/check.html', {'form':form, 'works':works, 'lesson_list':lesson_list, 'student': user, 'unit':unit, 'classroom_id':classroom_id}, context_instance=RequestContext(request))
+    return render(request, 'teacher/check.html', {'form':form, 'works':works, 'lesson_list':lesson_list, 'student': user, 'unit':unit, 'classroom_id':classroom_id})
 
 # 列出分組12堂課所有作業
 def work_group(request, classroom_id):
@@ -701,6 +701,6 @@ def work_group(request, classroom_id):
                     group_name = EnrollGroup.objects.get(id=group.id).name
                     student_groups.append([group, works, group_assistants, group_name])
                 lesson_dict[assignment[2]] = [assignment, student_groups]
-        return render_to_response('teacher/work_groups.html', {'lesson_dict':sorted(lesson_dict.iteritems()),'classroom':classroom}, context_instance=RequestContext(request))
+        return render(request, 'teacher/work_groups.html', {'lesson_dict':sorted(lesson_dict.iteritems()),'classroom':classroom})
  						
 		

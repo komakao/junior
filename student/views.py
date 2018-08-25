@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response, redirect, render
 from django.contrib.auth.models import User
 from django.template import RequestContext
 from account.models import Profile, VisitorLog, PointHistory
@@ -44,7 +44,7 @@ def lessons(request, lesson):
                         lesson_list[int(lesson)-1][1][unit][1][index].append(False)
                 else :
                     lesson_list[int(lesson)-1][1][unit][1][index].append(False)
-        return render_to_response('student/lessons.html', {'lesson': lesson, 'lesson_list':lesson_list}, context_instance=RequestContext(request))
+        return render(request, 'student/lessons.html', {'lesson': lesson, 'lesson_list':lesson_list})
 
 # 課程內容
 def lesson(request, lesson, unit, index):
@@ -103,7 +103,7 @@ def lesson(request, lesson, unit, index):
                 if len(workfiles)>0 and works[0].scorer>0: 
                     score_name = User.objects.get(id=works[0].scorer).first_name
                     scores = [works[0].score, score_name]	
-        return render_to_response('student/lesson.html', {'assignment':assignment, 'index':index, 'form': form, 'unit':unit, 'lesson':lesson, 'scores':scores, 'workfiles': workfiles}, context_instance=RequestContext(request))
+        return render(request, 'student/lesson.html', {'assignment':assignment, 'index':index, 'form': form, 'unit':unit, 'lesson':lesson, 'scores':scores, 'workfiles': workfiles})
         
 # 查看班級學生
 def classmate(request, classroom_id):
@@ -116,7 +116,7 @@ def classmate(request, classroom_id):
                 enroll_group.append([enroll, EnrollGroup.objects.get(id=enroll.group).name, login_times])
             else :
                 enroll_group.append([enroll, "沒有組別", login_times])                      
-        return render_to_response('student/classmate.html', {'classroom_name':classroom_name, 'enroll_group':enroll_group}, context_instance=RequestContext(request))
+        return render(request, 'student/classmate.html', {'classroom_name':classroom_name, 'enroll_group':enroll_group})
 
 # 顯示所有組別
 def group(request, classroom_id):
@@ -141,7 +141,7 @@ def group(request, classroom_id):
             if enroll.group == 0 :
 		        nogroup.append(enroll)		
 	    nogroup = sorted(nogroup, key=getKey)  
-        return render_to_response('student/group.html', {'nogroup': nogroup, 'group_open': group_open, 'student_groups':student_groups, 'classroom':classroom, 'student_group':student_group, 'teacher': is_teacher(request.user, classroom_id)}, context_instance=RequestContext(request))
+        return render(request, 'student/group.html', {'nogroup': nogroup, 'group_open': group_open, 'student_groups':student_groups, 'classroom':classroom, 'student_group':student_group, 'teacher': is_teacher(request.user, classroom_id)})
 
 # 新增組別
 def group_add(request, classroom_id):
@@ -155,7 +155,7 @@ def group_add(request, classroom_id):
                 return redirect('/student/group/'+classroom_id)
         else:
             form = GroupForm()
-        return render_to_response('form.html', {'form':form}, context_instance=RequestContext(request))
+        return render(request, 'form.html', {'form':form})
         
 # 設定組別人數
 def group_size(request, classroom_id):
@@ -170,7 +170,7 @@ def group_size(request, classroom_id):
         else:
             classroom = Classroom.objects.get(id=classroom_id)
             form = GroupSizeForm(instance=classroom)
-        return render_to_response('form.html', {'form':form}, context_instance=RequestContext(request))        
+        return render(request, 'form.html', {'form':form})
 
 # 加入組別
 def group_enroll(request, classroom_id,  group_id):
@@ -207,7 +207,7 @@ def classroom(request):
         for enroll in enrolls:
             shows = Round.objects.filter(classroom_id=enroll.classroom_id)
             classrooms.append([enroll, shows])       
-        return render_to_response('student/classroom.html',{'classrooms': classrooms}, context_instance=RequestContext(request))    
+        return render(request, 'student/classroom.html',{'classrooms': classrooms})
     
 # 查看可加入的班級
 def classroom_add(request):
@@ -223,7 +223,7 @@ def classroom_add(request):
                 classroom_teachers.append([classroom,classroom.teacher.first_name,1])
             else:
                 classroom_teachers.append([classroom,classroom.teacher.first_name,0])   
-        return render_to_response('student/classroom_add.html', {'classroom_teachers':classroom_teachers}, context_instance=RequestContext(request))
+        return render(request, 'student/classroom_add.html', {'classroom_teachers':classroom_teachers})
     
 # 加入班級
 def classroom_enroll(request, classroom_id):
@@ -237,7 +237,7 @@ def classroom_enroll(request, classroom_id):
                                 enroll = Enroll(classroom_id=classroom_id, student_id=request.user.id, seat=form.cleaned_data['seat'])
                                 enroll.save()                             
                         else:
-                                return render_to_response('message.html', {'message':"選課密碼錯誤"}, context_instance=RequestContext(request))
+                                return render(request, 'message.html', {'message':"選課密碼錯誤"})
                       
                     except Classroom.DoesNotExist:
                         pass
@@ -246,7 +246,7 @@ def classroom_enroll(request, classroom_id):
                     return redirect("/student/group/" + str(classroom.id))
         else:
             form = EnrollForm()
-        return render_to_response('form.html', {'form':form}, context_instance=RequestContext(request))
+        return render(request, 'form.html', {'form':form})
         
 # 修改座號
 def seat_edit(request, enroll_id, classroom_id):
@@ -261,7 +261,7 @@ def seat_edit(request, enroll_id, classroom_id):
     else:
         form = SeatForm(instance=enroll)
 
-    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))  
+    return render(request, 'form.html',{'form': form})
 
 # 登入記錄
 class LoginLogListView(ListView):
@@ -317,7 +317,7 @@ def work(request, classroom_id):
                 lesson_dict[assignment[2]] = [assignment[0], sworks[0]]
             else :
                 lesson_dict[assignment[2]] = [assignment[0], None]
-    return render_to_response('student/work.html', {'works':works, 'lesson_dict':sorted(lesson_dict.iteritems()), 'user_id': request.user.id, 'classroom_id':classroom_id}, context_instance=RequestContext(request))
+    return render(request, 'student/work.html', {'works':works, 'lesson_dict':sorted(lesson_dict.iteritems()), 'user_id': request.user.id, 'classroom_id':classroom_id})
 	
 def work_download(request, lesson, index, user_id, workfile_id):
     lesson_dict = OrderedDict()
@@ -378,7 +378,7 @@ def work_group(request, index, classroom_id):
             for assignment in unit[1]:
                 lesson_dict[assignment[2]] = assignment[0]    
         assignment = lesson_dict[int(index)]	     
-        return render_to_response('student/work_group.html', {'lesson':lesson, 'assignment':assignment, 'student_groups':student_groups, 'classroom_id':classroom_id}, context_instance=RequestContext(request))
+        return render(request, 'student/work_group.html', {'lesson':lesson, 'assignment':assignment, 'student_groups':student_groups, 'classroom_id':classroom_id})
 
 def memo(request, classroom_id, index):
     classroom = Classroom.objects.get(id=classroom_id)
@@ -394,14 +394,14 @@ def memo(request, classroom_id, index):
     def getKey(custom):
         return custom[0].seat
     datas = sorted(datas, key=getKey)	 
-    return render_to_response('student/memo.html', {'datas': datas, 'lesson':lesson}, context_instance=RequestContext(request))
+    return render(request, 'student/memo.html', {'datas': datas, 'lesson':lesson})
 
 
 # 查詢某班級心得
 def memo_all(request, classroom_id):
         enrolls = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")
         classroom_name = Classroom.objects.get(id=classroom_id).name       
-        return render_to_response('student/memo_all.html', {'enrolls':enrolls, 'classroom_name':classroom_name}, context_instance=RequestContext(request))
+        return render(request, 'student/memo_all.html', {'enrolls':enrolls, 'classroom_name':classroom_name})
 
 # 查詢某班級心得統計
 def memo_count(request, classroom_id, index):
@@ -435,7 +435,7 @@ def memo_count(request, classroom_id, index):
                 words.append([key, value])
                 if count == 30:
                     break        
-        return render_to_response('student/memo_count.html', {'words':words, 'enrolls':enrolls, 'classroom':classroom, 'index':index}, context_instance=RequestContext(request))
+        return render(request, 'student/memo_count.html', {'words':words, 'enrolls':enrolls, 'classroom':classroom, 'index':index})
 
 # 評分某同學某進度心得
 @login_required
@@ -450,7 +450,7 @@ def memo_user(request, user_id, lesson):
                 lesson_dict[assignment[2]] = [assignment[0], sworks[0]]
             else :
                 lesson_dict[assignment[2]] = [assignment[0], None]  
-    return render_to_response('student/memo_user.html', {'lesson_dict':sorted(lesson_dict.iteritems()), 'student': user}, context_instance=RequestContext(request))
+    return render(request, 'student/memo_user.html', {'lesson_dict':sorted(lesson_dict.iteritems()), 'student': user})
 
 # 查詢某班某作業某詞句心得
 def memo_word(request, classroom_id, index, word):
@@ -465,7 +465,7 @@ def memo_word(request, classroom_id, index, word):
             works = Work.objects.filter(lesson=classroom.lesson, user_id__in=members, index=index, memo__contains=word)					
         for work in works:
             work.memo = work.memo.replace(word, '<font color=red>'+word+'</font>')            
-        return render_to_response('student/memo_word.html', {'word':word, 'works':works, 'classroom':classroom}, context_instance=RequestContext(request))
+        return render(request, 'student/memo_word.html', {'word':word, 'works':works, 'classroom':classroom})
 		
 		
 # 查詢個人心得
@@ -492,7 +492,7 @@ def memo_show(request, user_id, unit,classroom_id, score):
         c = c + 1
         #enroll_group = Enroll.objects.get(classroom_id=classroom_id, student_id=request.user.id).group
     user = User.objects.get(id=user_id)      
-    return render_to_response('student/memo_show.html', {'classroom_id': classroom_id, 'works':works, 'lesson_list':lesson_list, 'user_name': user_name, 'unit':unit, 'score':score}, context_instance=RequestContext(request))
+    return render(request, 'student/memo_show.html', {'classroom_id': classroom_id, 'works':works, 'lesson_list':lesson_list, 'user_name': user_name, 'unit':unit, 'score':score})
 
 # 查詢作業進度
 def progress(request, classroom_id):
@@ -514,7 +514,7 @@ def progress(request, classroom_id):
             else :
                 bars.append([enroll, None]) 
         bars1.append(bars)
-    return render_to_response('student/progress.html', {'bars1':bars1,'classroom':classroom, 'lesson_dict':sorted(lesson_dict.iteritems())}, context_instance=RequestContext(request))
+    return render(request, 'student/progress.html', {'bars1':bars1,'classroom':classroom, 'lesson_dict':sorted(lesson_dict.iteritems())})
     
 # 所有作業的小老師
 def work_groups(request, classroom_id):
@@ -545,5 +545,5 @@ def work_groups(request, classroom_id):
                     if assistant:
                         group_assistants.append(enroll)												
                 lesson_dict[assignment[2]] = [assignment, student_group, group_assistants, group_name]
-        return render_to_response('student/work_groups.html', {'lesson_dict':sorted(lesson_dict.iteritems()), 'classroom_id':classroom_id}, context_instance=RequestContext(request))
+        return render(request, 'student/work_groups.html', {'lesson_dict':sorted(lesson_dict.iteritems()), 'classroom_id':classroom_id})
  						
