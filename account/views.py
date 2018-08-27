@@ -360,7 +360,7 @@ def adminschool(request):
         user = User.objects.get(id=request.user.id)
         form = SchoolForm(instance=user)
 
-    return render(requestt, 'form.html',{'form': form})
+    return render(request, 'form.html',{'form': form})
     
 # 修改信箱
 def adminemail(request):
